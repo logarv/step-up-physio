@@ -3,13 +3,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { prompt } = req.body;
+  const { prompt } = req.body || {};
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(200).json({
-      reply: "GEMINI_API_KEY Vercel Environment Variables mein set karein. Filhal apne posture ko seedha rakhein aur dard zyada hone par Bookings tab se appointment lein."
-    });
+    return res.status(200).json({ useLocalEngine: true });
   }
 
   try {
@@ -23,7 +21,7 @@ export default async function handler(req, res) {
             {
               parts: [
                 {
-                  text: `You are the AI Physiotherapy Assistant for StepUp Physiotherapy & Rehabilitation Center. Give safe, concise, step-by-step home rehab exercises and posture advice in simple Roman Urdu or English. Always remind the patient to book an appointment if they have severe pain or numbness. Patient query: ${prompt}`
+                  text: `You are the official AI Physiotherapy Assistant for StepUp Physiotherapy & Rehabilitation Center (Consultant: Dr. Mubeen Riaz, DPT). Directly answer the patient's specific question in simple Roman Urdu or English with 3 numbered practical exercises, sets/reps, and posture precautions. Never give a generic one-line answer. Patient question: ${prompt}`
                 }
               ]
             }
@@ -33,9 +31,14 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Stay hydrated and maintain gentle movement.";
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!reply) {
+      return res.status(200).json({ useLocalEngine: true });
+    }
+
     return res.status(200).json({ reply });
   } catch (error) {
-    return res.status(500).json({ error: "Failed to reach Gemini API" });
+    return res.status(200).json({ useLocalEngine: true });
   }
 }
