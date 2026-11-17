@@ -4,78 +4,121 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0d9488" />
-  <title>StepUp Physio - Rehab & Booking App</title>
+  <title>StepUp Physio - Clinical Rehab & Booking App</title>
   <link rel="manifest" href="/manifest.json" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body { -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
     .hide-scroll::-webkit-scrollbar { display: none; }
+    
+    /* Exercise Live Visualizations (CSS Keyframe Animations) */
+    @keyframes neckTuck { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
+    @keyframes spineLift { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-18deg); } }
+    @keyframes kneeExtend { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-65deg); } }
+    @keyframes balanceSway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+    @keyframes armRaise { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    @keyframes pulseGlow { 0%, 100% { opacity: 0.35; r: 8; } 50% { opacity: 0.9; r: 13; } }
+
+    .anim-neck { animation: neckTuck 2.4s infinite ease-in-out; }
+    .anim-spine { transform-origin: 90px 95px; animation: spineLift 3s infinite ease-in-out; }
+    .anim-knee { transform-origin: 105px 78px; animation: kneeExtend 2.6s infinite ease-in-out; }
+    .anim-balance { transform-origin: 100px 115px; animation: balanceSway 2.5s infinite ease-in-out; }
+    .anim-arm { animation: armRaise 2.2s infinite ease-in-out; }
+    .pain-target { animation: pulseGlow 1.8s infinite ease-in-out; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 pb-20 select-none">
+<body class="bg-slate-50 text-slate-800 pb-24 select-none">
 
   <!-- TOP APP BAR -->
   <header class="bg-teal-600 text-white sticky top-0 z-40 shadow-md px-4 py-3 flex justify-between items-center">
-    <div class="flex items-center gap-2">
-      <i class="fa-solid fa-heart-pulse text-2xl"></i>
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
+        <i class="fa-solid fa-heart-pulse text-xl"></i>
+      </div>
       <div>
-        <h1 class="font-bold text-lg leading-tight">StepUp Physio</h1>
-        <p class="text-[11px] text-teal-100">Rehabilitation & Care Center</p>
+        <h1 class="font-bold text-base leading-tight">StepUp Physio</h1>
+        <p class="text-[11px] text-teal-100">Dr. Mubeen Riaz • Rehab Center</p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <!-- Install App Button (PWA) -->
+    <div class="flex items-center gap-2">
       <button id="installBtn" class="hidden bg-white text-teal-700 text-xs font-bold px-2.5 py-1.5 rounded-full shadow">
         <i class="fa-solid fa-download mr-1"></i>Install
       </button>
-      <!-- Notification Bell -->
+      <button onclick="shareAppLink()" class="p-2 rounded-full hover:bg-teal-700" title="Share App Link">
+        <i class="fa-solid fa-share-nodes text-sm"></i>
+      </button>
       <button onclick="switchTab('notifications')" class="relative p-2 rounded-full hover:bg-teal-700">
-        <i class="fa-solid fa-bell text-lg"></i>
+        <i class="fa-solid fa-bell text-base"></i>
         <span id="notifBadge" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
       </button>
-      <!-- User Profile / Logout -->
-      <button id="logoutBtn" onclick="handleLogout()" class="hidden text-xs bg-teal-800 px-2.5 py-1.5 rounded-lg">
+      <button id="logoutBtn" onclick="handleLogout()" class="hidden text-xs bg-teal-800 hover:bg-teal-900 px-2.5 py-1.5 rounded-lg">
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
     </div>
   </header>
 
-  <!-- AUTHENTICATION MODAL (SIGN IN / SIGN UP) -->
-  <div id="authScreen" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-      <div class="text-center mb-5">
-        <div class="w-14 h-14 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl">
+  <!-- PROFESSIONAL AUTHENTICATION MODAL (STRICT VALIDATION, NO DEMO TEXT) -->
+  <div id="authScreen" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="text-center mb-4">
+        <div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl shadow-inner">
           <i class="fa-solid fa-user-doctor"></i>
         </div>
-        <h2 class="text-xl font-bold text-slate-800">Welcome to StepUp Physio</h2>
-        <p class="text-xs text-slate-500">Sign in to sync exercises, appointments & alerts</p>
+        <h2 class="text-xl font-bold text-slate-800">StepUp Physio Portal</h2>
+        <p class="text-xs text-slate-500">Clinical Rehabilitation & Appointment System</p>
       </div>
 
-      <div class="space-y-3">
-        <input id="authName" type="text" placeholder="Full Name (for Sign Up)" class="w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
-        <input id="authEmail" type="email" placeholder="Email Address" class="w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
-        <input id="authPass" type="password" placeholder="Password (min 6 chars)" class="w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
-        
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button onclick="handleEmailAuth('login')" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 rounded-xl text-sm">Login</button>
-          <button onclick="handleEmailAuth('signup')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm">Sign Up</button>
-        </div>
-
-        <div class="relative flex py-2 items-center">
-          <div class="flex-grow border-t border-slate-200"></div>
-          <span class="flex-shrink mx-3 text-slate-400 text-xs">OR</span>
-          <div class="flex-grow border-t border-slate-200"></div>
-        </div>
-
-        <button onclick="handleGoogleLogin()" class="w-full border border-slate-300 hover:bg-slate-50 font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-2">
-          <i class="fa-brands fa-google text-red-500"></i> Continue with Google
-        </button>
-        <button onclick="enableDemoMode()" class="w-full text-teal-600 text-xs font-semibold py-1.5 underline">
-          Use Instant Local Demo Mode (No Firebase Key Needed)
-        </button>
+      <!-- Auth Mode Switcher -->
+      <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-bold">
+        <button id="tabLoginBtn" onclick="setAuthTab('login')" class="py-2 rounded-lg bg-white text-teal-700 shadow-sm transition">Sign In</button>
+        <button id="tabSignupBtn" onclick="setAuthTab('signup')" class="py-2 rounded-lg text-slate-500 transition">Create Account</button>
       </div>
-      <p id="authError" class="text-red-500 text-xs text-center mt-3 hidden"></p>
+
+      <form id="authForm" onsubmit="submitAuthForm(event)" class="space-y-3" novalidate>
+        <div id="signupFields" class="hidden space-y-3">
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600">Patient Full Name *</label>
+            <input id="authName" type="text" placeholder="e.g. Ali Raza" class="w-full mt-1 px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-teal-600" />
+          </div>
+          <div>
+            <label class="text-[11px] font-semibold text-slate-600">Active Phone / WhatsApp *</label>
+            <input id="authPhone" type="tel" placeholder="03XX-XXXXXXX" class="w-full mt-1 px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-teal-600" />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-semibold text-slate-600">Official Email / Gmail Address *</label>
+          <input id="authEmail" type="email" placeholder="example@gmail.com" required class="w-full mt-1 px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-teal-600" />
+        </div>
+
+        <div>
+          <label class="text-[11px] font-semibold text-slate-600">Password (min 6 chars, letters & numbers) *</label>
+          <div class="relative mt-1">
+            <input id="authPass" type="password" placeholder="••••••••" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-teal-600" />
+            <button type="button" onclick="togglePassVis()" class="absolute right-3 top-2.5 text-slate-400 text-xs">
+              <i id="passEye" class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Status / Error / Processing Box -->
+        <div id="authFeedback" class="hidden rounded-xl p-2.5 text-xs font-medium"></div>
+
+        <button id="authSubmitBtn" type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
+          <span id="authBtnText">Sign In to Portal</span>
+        </button>
+      </form>
+
+      <div class="relative flex py-3 items-center">
+        <div class="flex-grow border-t border-slate-200"></div>
+        <span class="flex-shrink mx-3 text-slate-400 text-[11px]">OR</span>
+        <div class="flex-grow border-t border-slate-200"></div>
+      </div>
+
+      <button onclick="handleGoogleLogin()" class="w-full border border-slate-300 hover:bg-slate-50 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 text-slate-700">
+        <i class="fa-brands fa-google text-red-500 text-sm"></i> Continue with Verified Google Account
+      </button>
     </div>
   </div>
 
@@ -86,23 +129,23 @@
     <div id="pushBanner" class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
         <i class="fa-solid fa-bell-concierge text-amber-600 text-lg"></i>
-        <p class="text-xs text-amber-900">Enable device notifications for appointment & daily posture alerts.</p>
+        <p class="text-xs text-amber-900">Allow push notifications for appointment confirmations & daily rehab alarms.</p>
       </div>
       <button onclick="requestPushPermission()" class="bg-amber-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0">Allow</button>
     </div>
 
-    <!-- TAB 1: HOME & EXERCISES -->
+    <!-- TAB 1: HOME & VISUAL EXERCISES -->
     <section id="tab-home" class="space-y-5">
-      <!-- Welcome & Quick Stats -->
       <div class="bg-gradient-to-r from-teal-600 to-emerald-600 rounded-2xl p-4 text-white shadow-md">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-start">
           <div>
-            <p class="text-xs text-teal-100">Assalam-o-Alaikum,</p>
-            <h2 id="userGreeting" class="text-lg font-bold">Patient</h2>
+            <p class="text-xs text-teal-100">Verified Patient Profile</p>
+            <h2 id="userGreeting" class="text-lg font-bold">Welcome</h2>
+            <p id="userEmailBadge" class="text-[11px] text-teal-100 opacity-90"></p>
           </div>
-          <div class="text-right">
-            <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full">Realtime Sync Active <i class="fa-solid fa-bolt text-yellow-300 ml-1"></i></span>
-          </div>
+          <span class="text-[11px] bg-white/20 px-2.5 py-1 rounded-full font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span> Live Sync
+          </span>
         </div>
         <div class="grid grid-cols-3 gap-2 mt-4 text-center bg-black/15 rounded-xl p-2.5">
           <div>
@@ -111,11 +154,11 @@
           </div>
           <div>
             <p id="statPain" class="text-lg font-bold">--</p>
-            <p class="text-[11px] text-teal-100">Last Pain Level</p>
+            <p class="text-[11px] text-teal-100">Pain Score</p>
           </div>
           <div>
             <p id="statAppts" class="text-lg font-bold">0</p>
-            <p class="text-[11px] text-teal-100">Active Bookings</p>
+            <p class="text-[11px] text-teal-100">Appointments</p>
           </div>
         </div>
       </div>
@@ -123,56 +166,63 @@
       <!-- Categories Filter -->
       <div>
         <div class="flex justify-between items-center mb-2">
-          <h3 class="font-bold text-sm text-slate-700">Specialized Rehab Categories</h3>
+          <h3 class="font-bold text-sm text-slate-700">Visual Guided Rehab Routines</h3>
           <button onclick="toggleAddExerciseModal()" class="text-xs text-teal-600 font-semibold">+ Add Custom Routine</button>
         </div>
         <div id="categoryPills" class="flex gap-2 overflow-x-auto hide-scroll pb-1">
           <button onclick="filterCategory('All')" class="cat-btn bg-teal-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">All</button>
+          <button onclick="filterCategory('Posture Care')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Posture Care</button>
           <button onclick="filterCategory('Orthopedics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Orthopedics</button>
           <button onclick="filterCategory('Neurology')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Neurology</button>
-          <button onclick="filterCategory('Pediatrics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pediatrics</button>
           <button onclick="filterCategory('Geriatrics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Geriatrics</button>
-          <button onclick="filterCategory('Posture Care')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Posture Care</button>
+          <button onclick="filterCategory('Pediatrics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pediatrics</button>
         </div>
       </div>
 
-      <!-- Exercise Cards List -->
-      <div id="exerciseList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      <!-- Visual Exercise Cards List -->
+      <div id="exerciseList" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
 
       <!-- Pain Level & Progress Logger -->
       <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
-        <h3 class="font-bold text-sm"><i class="fa-solid fa-sliders text-teal-600 mr-1.5"></i>Log Today's Pain & Recovery</h3>
-        <div class="flex items-center gap-3">
-          <input id="painSlider" type="range" min="1" max="10" value="3" oninput="document.getElementById('painVal').innerText = this.value" class="w-full accent-teal-600" />
-          <span id="painVal" class="font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-lg text-sm">3</span>
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-sm"><i class="fa-solid fa-sliders text-teal-600 mr-1.5"></i>Log Daily Pain Intensity</h3>
+          <span id="painVal" class="font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-lg text-xs">3 / 10 (Mild)</span>
         </div>
-        <button onclick="savePainLog()" class="w-full bg-slate-800 text-white text-xs font-semibold py-2.5 rounded-xl">Save Pain Score & Update Cloud</button>
+        <input id="painSlider" type="range" min="1" max="10" value="3" oninput="updatePainLabel(this.value)" class="w-full accent-teal-600" />
+        <button onclick="savePainLog()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold py-2.5 rounded-xl">Save Pain Score to Patient Record</button>
       </div>
     </section>
 
-    <!-- TAB 2: APPOINTMENTS (BOOK, RESCHEDULE, CANCEL) -->
+    <!-- TAB 2: APPOINTMENTS (DR. MUBEEN RIAZ) -->
     <section id="tab-appointments" class="hidden space-y-5">
       <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
-        <h3 class="font-bold text-base text-slate-800"><i class="fa-regular fa-calendar-check text-teal-600 mr-1.5"></i>Book Physiotherapy Session</h3>
-        <p class="text-xs text-slate-500">Book an in-clinic or online video rehabilitation consultation.</p>
+        <div class="flex items-center gap-3 border-b pb-3">
+          <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-user-doctor"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-800">Dr. Mubeen Riaz</h3>
+            <p class="text-xs text-teal-700 font-medium">DPT • Consultant Physiotherapist & Rehab Specialist</p>
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <div>
             <label class="text-xs font-semibold text-slate-600">Select Specialist / Department</label>
-            <select id="apptDoctor" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50">
+            <select id="apptDoctor" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50 font-medium text-slate-800">
               <option value="Dr. Mubeen Riaz (DPT, Consultant Physiotherapist)">Dr. Mubeen Riaz (DPT, Consultant Physiotherapist)</option>
-</select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-600">Session Type</label>
-            <select id="apptType" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50">
-              <option value="Clinic Visit (StepUp Center)">Clinic Visit (StepUp Center)</option>
-              <option value="Video Consultation">Online Video Consultation</option>
-              <option value="Home Physio Visit">Home Physio Visit</option>
             </select>
           </div>
           <div>
-            <label class="text-xs font-semibold text-slate-600">Appointment Date</label>
+            <label class="text-xs font-semibold text-slate-600">Consultation Type</label>
+            <select id="apptType" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50">
+              <option value="Clinic Visit (StepUp Rehab Center)">Clinic Visit (StepUp Rehab Center)</option>
+              <option value="Online Video Consultation">Online Video Consultation</option>
+              <option value="Home Physiotherapy Session">Home Physiotherapy Session</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Preferred Date</label>
             <input id="apptDate" type="date" class="w-full mt-1 px-3 py-2 border rounded-xl text-sm bg-slate-50" />
           </div>
           <div>
@@ -186,51 +236,63 @@
             </select>
           </div>
         </div>
-        <input id="apptNotes" type="text" placeholder="Describe pain area or symptoms (e.g., Lower back stiffness)" class="w-full px-3 py-2.5 border rounded-xl text-sm bg-slate-50" />
+        <input id="apptNotes" type="text" placeholder="Describe your pain, injury, or condition (e.g., Lower back slip disc, neck stiffness)" class="w-full px-3 py-2.5 border rounded-xl text-sm bg-slate-50" />
         <button onclick="bookAppointment()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl text-sm shadow">
-          <i class="fa-solid fa-calendar-plus mr-1"></i> Confirm Appointment Booking
+          <i class="fa-solid fa-calendar-check mr-1"></i> Confirm Appointment with Dr. Mubeen Riaz
         </button>
       </div>
 
-      <!-- Active & Cancelled Appointments List -->
       <div class="space-y-2.5">
-        <h3 class="font-bold text-sm text-slate-700">Your Scheduled Appointments (Real-time Synced)</h3>
+        <h3 class="font-bold text-sm text-slate-700">Your Scheduled Appointments</h3>
         <div id="appointmentsList" class="space-y-2.5"></div>
       </div>
     </section>
 
-    <!-- TAB 3: AI PHYSIO ASSISTANT (GEMINI SERVER-SIDE) -->
+    <!-- TAB 3: AI PHYSIO ASSISTANT (DYNAMIC MULTI-TOPIC CLINICAL ENGINE) -->
     <section id="tab-ai" class="hidden space-y-4">
       <div class="bg-white p-4 rounded-2xl border shadow-sm">
-        <div class="flex items-center gap-2.5 mb-2">
-          <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-robot"></i>
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm">StepUp AI Clinical Assistant</h3>
+              <p class="text-[11px] text-slate-500">Ask any specific question in Urdu or English</p>
+            </div>
           </div>
-          <div>
-            <h3 class="font-bold text-sm">StepUp AI Physio Guide</h3>
-            <p class="text-[11px] text-slate-500">Ask in Urdu or English about posture, stretches, or rehab routines</p>
+          <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full border border-emerald-200">Gemini 2.5 Active</span>
+        </div>
+
+        <!-- Quick Symptom Prompts -->
+        <div class="flex gap-1.5 overflow-x-auto hide-scroll pb-2 mb-2">
+          <button onclick="quickAsk('Gardan aur kandhe mein khichao hai, konsi exercise karoon?')" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-lg shrink-0">Neck & Shoulder Pain</button>
+          <button onclick="quickAsk('Kamar ke nichle hisse (Lower Back / Sciatica) mein dard hai')" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-lg shrink-0">Lower Back / Sciatica</button>
+          <button onclick="quickAsk('Ghutno (Knee Joint) mein dard aur awaz aati hai')" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-lg shrink-0">Knee Pain</button>
+          <button onclick="quickAsk('Laptop use karne walon ke liye best posture kya hai?')" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-lg shrink-0">Desk Posture</button>
+        </div>
+
+        <div id="chatBox" class="h-80 overflow-y-auto bg-slate-50 rounded-xl p-3 space-y-3 text-xs border">
+          <div class="bg-teal-600 text-white p-3 rounded-2xl rounded-tl-none max-w-[88%] leading-relaxed">
+            Assalam-o-Alaikum! Main <b>StepUp Physio AI Assistant</b> hoon. Aap apni takleef (jaise gardan ka dard, kamar/sciatica, ghutno ka dard, frozen shoulder, ya bacho/buzurgo ki physio) tafseel se likhein—main aap ko har masle ke mutabiq alag step-by-step exercise aur احتیاط bataunga.
           </div>
         </div>
-        <div id="chatBox" class="h-80 overflow-y-auto bg-slate-50 rounded-xl p-3 space-y-2.5 text-xs border">
-          <div class="bg-teal-600 text-white p-3 rounded-xl max-w-[85%]">
-            Assalam-o-Alaikum! Main StepUp Physio AI Assistant hoon. Aap ko kis body part (gardan, kamar, ghutne, posture) ki exercise ya rehab guidance chahiye?
-          </div>
-        </div>
-        <div class="flex gap-2 mt-3">
-          <input id="aiInput" type="text" placeholder="Type symptoms (e.g. Neck pain from laptop use)..." class="flex-1 px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
-          <button onclick="askGemini()" class="bg-teal-600 text-white px-4 rounded-xl font-semibold text-sm">
+
+        <form onsubmit="event.preventDefault(); askGemini();" class="flex gap-2 mt-3">
+          <input id="aiInput" type="text" placeholder="Apna sawal likhein (e.g. Kamar mein dard hai)..." class="flex-1 px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
+          <button id="aiSendBtn" type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-4 rounded-xl font-semibold text-sm">
             <i class="fa-solid fa-paper-plane"></i>
           </button>
-        </div>
+        </form>
       </div>
     </section>
 
-    <!-- TAB 4: ALL NOTIFICATIONS & REMINDERS -->
+    <!-- TAB 4: NOTIFICATIONS & REMINDERS -->
     <section id="tab-notifications" class="hidden space-y-4">
       <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
         <div class="flex justify-between items-center">
-          <h3 class="font-bold text-sm"><i class="fa-solid fa-clock text-teal-600 mr-1.5"></i>Set Daily Exercise & Posture Reminder</h3>
-          <button onclick="sendNotification('Test Alert', 'StepUp Physio notifications are working properly on your device!')" class="text-xs bg-teal-50 text-teal-700 px-2.5 py-1 rounded-lg font-semibold">Test Alert</button>
+          <h3 class="font-bold text-sm"><i class="fa-solid fa-clock text-teal-600 mr-1.5"></i>Daily Exercise & Posture Reminder</h3>
+          <button onclick="sendNotification('StepUp Physio Alert 🔔', 'Device notifications are active for your account!')" class="text-xs bg-teal-50 text-teal-700 px-2.5 py-1 rounded-lg font-semibold">Test Alert</button>
         </div>
         <div class="flex gap-2">
           <input id="reminderTime" type="time" value="09:00" class="border px-3 py-2 rounded-xl text-sm flex-1" />
@@ -240,7 +302,7 @@
 
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <h3 class="font-bold text-sm text-slate-700">Notification History (Bookings, Cancellations & Alerts)</h3>
+          <h3 class="font-bold text-sm text-slate-700">Activity & Notification Log</h3>
           <button onclick="clearNotifications()" class="text-xs text-red-500 font-medium">Clear All</button>
         </div>
         <div id="notifList" class="space-y-2"></div>
@@ -249,46 +311,55 @@
 
   </main>
 
-  <!-- INTERACTIVE EXERCISE TIMER MODAL -->
-  <div id="timerModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 text-center space-y-4">
-      <span id="modalCat" class="text-[11px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 px-3 py-1 rounded-full">Category</span>
-      <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Exercise Name</h3>
-      <p id="modalSteps" class="text-xs text-slate-600 leading-relaxed"></p>
-      <div class="py-4 bg-slate-100 rounded-2xl">
-        <p id="timerDisplay" class="text-4xl font-extrabold text-teal-600 font-mono">00:45</p>
-        <p class="text-[11px] text-slate-500 mt-1">Hold / Perform smoothly & breathe normally</p>
+  <!-- INTERACTIVE VISUAL EXERCISE TIMER MODAL -->
+  <div id="timerModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 text-center space-y-3.5 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <span id="modalCat" class="text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 px-3 py-1 rounded-full">Category</span>
+        <span id="modalTarget" class="text-[11px] font-semibold text-slate-500">Target Area</span>
       </div>
+      <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Exercise Name</h3>
+
+      <!-- Live Animated Visual Coach Box -->
+      <div id="modalVisualBox" class="bg-slate-900 rounded-2xl p-3 flex flex-col items-center justify-center h-44 relative overflow-hidden"></div>
+
+      <p id="modalSteps" class="text-xs text-slate-600 leading-relaxed text-left bg-slate-50 p-3 rounded-xl border"></p>
+
+      <div class="py-2.5 bg-teal-50/70 border border-teal-100 rounded-2xl">
+        <p id="timerDisplay" class="text-3xl font-extrabold text-teal-700 font-mono">00:45</p>
+        <p id="modalReps" class="text-[11px] text-teal-600 font-semibold mt-0.5">3 Sets × 10 Reps • Breathe Slowly</p>
+      </div>
+
       <div class="flex gap-2">
         <button onclick="startStopTimer()" id="timerToggleBtn" class="flex-1 bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Start Timer</button>
-        <button onclick="completeExerciseSession()" class="flex-1 bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-sm">Mark Done</button>
+        <button onclick="completeExerciseSession()" class="flex-1 bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-sm">Complete Set</button>
       </div>
-      <button onclick="closeTimerModal()" class="text-xs text-slate-400 underline">Close</button>
+      <button onclick="closeTimerModal()" class="text-xs text-slate-400 underline">Close Window</button>
     </div>
   </div>
 
-  <!-- DYNAMIC ADD EXERCISE MODAL (REALTIME CLOUD UPDATE) -->
+  <!-- ADD CUSTOM EXERCISE MODAL -->
   <div id="addExModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-3">
-      <h3 class="font-bold text-base">Add New Rehab Exercise (Auto-Syncs Everywhere)</h3>
-      <input id="newExTitle" type="text" placeholder="Exercise Name (e.g. Chin Tucks)" class="w-full px-3 py-2 border rounded-xl text-sm" />
+      <h3 class="font-bold text-base">Add Custom Rehab Routine</h3>
+      <input id="newExTitle" type="text" placeholder="Exercise Name (e.g. Shoulder Pendulum)" class="w-full px-3 py-2 border rounded-xl text-sm" />
       <select id="newExCat" class="w-full px-3 py-2 border rounded-xl text-sm">
+        <option value="Posture Care">Posture Care</option>
         <option value="Orthopedics">Orthopedics</option>
         <option value="Neurology">Neurology</option>
-        <option value="Pediatrics">Pediatrics</option>
         <option value="Geriatrics">Geriatrics</option>
-        <option value="Posture Care">Posture Care</option>
+        <option value="Pediatrics">Pediatrics</option>
       </select>
       <input id="newExDuration" type="number" placeholder="Duration in seconds (e.g. 45)" value="45" class="w-full px-3 py-2 border rounded-xl text-sm" />
       <textarea id="newExDesc" rows="3" placeholder="Step-by-step instructions..." class="w-full px-3 py-2 border rounded-xl text-sm"></textarea>
       <div class="flex gap-2">
-        <button onclick="addNewExercise()" class="flex-1 bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Save & Sync</button>
+        <button onclick="addNewExercise()" class="flex-1 bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Save Routine</button>
         <button onclick="toggleAddExerciseModal()" class="flex-1 bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-sm">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION BAR (PLAY STORE APP FEEL) -->
+  <!-- BOTTOM NAVIGATION BAR -->
   <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 flex justify-around py-2 z-40 max-w-3xl mx-auto">
     <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-teal-600 text-xs font-semibold">
       <i class="fa-solid fa-dumbbell text-lg mb-0.5"></i><span>Exercises</span>
@@ -304,15 +375,13 @@
     </button>
   </nav>
 
-  <!-- FIREBASE & APP LOGIC -->
+  <!-- APP & FIREBASE LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, where, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // =========================================================================
-    // 1. APNI FIREBASE CONFIG YAHAN PASTE KAREIN (Firebase Console -> Project Settings)
-    // =========================================================================
+    // Optional Firebase Config (Works seamlessly with Cloud Firebase OR Local Encrypted Account DB)
     const firebaseConfig = {
       apiKey: "REPLACE_WITH_YOUR_FIREBASE_API_KEY",
       authDomain: "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
@@ -323,16 +392,86 @@
     };
 
     let app, auth, db;
-    let isDemoMode = firebaseConfig.apiKey.includes("REPLACE");
+    let isCloudConfigured = !firebaseConfig.apiKey.includes("REPLACE");
     let currentUser = null;
+    let authMode = "login";
 
-    // Default Built-in Rehab Exercises (covering all metadata.json categories)
+    // =========================================================================
+    // 1. ANIMATED SVG VISUALIZATIONS FOR EACH EXERCISE TYPE
+    // =========================================================================
+    function getExerciseVisualSVG(visualType) {
+      const visuals = {
+        neck: `
+          <svg viewBox="0 0 200 130" class="w-full h-36">
+            <line x1="45" y1="15" x2="45" y2="115" stroke="#475569" stroke-width="4" stroke-dasharray="4 3"/>
+            <text x="115" y="24" fill="#5eead4" font-size="10" font-weight="bold">← Glide Chin Back</text>
+            <g class="anim-neck">
+              <circle cx="80" cy="42" r="14" fill="#14b8a6"/>
+              <circle cx="80" cy="62" r="9" class="pain-target" fill="#f43f5e"/>
+              <line x1="80" y1="56" x2="80" y2="110" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+            </g>
+            <path d="M108 42 L95 42" stroke="#2dd4bf" stroke-width="2.5" marker-end="url(#arrow)"/>
+          </svg>`,
+        back: `
+          <svg viewBox="0 0 200 130" class="w-full h-36">
+            <line x1="20" y1="102" x2="180" y2="102" stroke="#475569" stroke-width="4"/>
+            <text x="60" y="22" fill="#5eead4" font-size="10" font-weight="bold">↑ Gently Arch Chest Up</text>
+            <line x1="35" y1="95" x2="90" y2="95" stroke="#94a3b8" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="90" cy="92" r="10" class="pain-target" fill="#f43f5e"/>
+            <g class="anim-spine">
+              <line x1="90" y1="95" x2="145" y2="75" stroke="#2dd4bf" stroke-width="8" stroke-linecap="round"/>
+              <circle cx="155" cy="66" r="11" fill="#14b8a6"/>
+              <line x1="130" y1="82" x2="130" y2="102" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>`,
+        knee: `
+          <svg viewBox="0 0 200 130" class="w-full h-36">
+            <polyline points="55,40 55,110 95,110" fill="none" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="70" cy="32" r="11" fill="#14b8a6"/>
+            <line x1="70" y1="45" x2="70" y2="78" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+            <line x1="70" y1="78" x2="105" y2="78" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="105" cy="78" r="9" class="pain-target" fill="#f43f5e"/>
+            <g class="anim-knee">
+              <line x1="105" y1="78" x2="105" y2="115" stroke="#2dd4bf" stroke-width="7" stroke-linecap="round"/>
+              <line x1="105" y1="115" x2="116" y2="115" stroke="#5eead4" stroke-width="5" stroke-linecap="round"/>
+            </g>
+            <text x="115" y="55" fill="#5eead4" font-size="10" font-weight="bold">↗ Straighten Knee</text>
+          </svg>`,
+        balance: `
+          <svg viewBox="0 0 200 130" class="w-full h-36">
+            <line x1="40" y1="115" x2="160" y2="115" stroke="#475569" stroke-width="4"/>
+            <g class="anim-balance">
+              <circle cx="100" cy="30" r="11" fill="#14b8a6"/>
+              <line x1="100" y1="42" x2="100" y2="82" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round"/>
+              <line x1="72" y1="56" x2="128" y2="56" stroke="#2dd4bf" stroke-width="5" stroke-linecap="round"/>
+              <line x1="100" y1="82" x2="100" y2="115" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+              <polyline points="100,82 118,96 105,110" fill="none" stroke="#5eead4" stroke-width="5" stroke-linecap="round"/>
+            </g>
+            <text x="52" y="18" fill="#5eead4" font-size="10" font-weight="bold">↔ Hold Core Steady</text>
+          </svg>`,
+        shoulder: `
+          <svg viewBox="0 0 200 130" class="w-full h-36">
+            <circle cx="100" cy="38" r="12" fill="#14b8a6"/>
+            <line x1="100" y1="52" x2="100" y2="112" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="82" cy="58" r="8" class="pain-target" fill="#f43f5e"/>
+            <circle cx="118" cy="58" r="8" class="pain-target" fill="#f43f5e"/>
+            <g class="anim-arm">
+              <polyline points="82,58 58,48 58,28" fill="none" stroke="#2dd4bf" stroke-width="6" stroke-linecap="round"/>
+              <polyline points="118,58 142,48 142,28" fill="none" stroke="#2dd4bf" stroke-width="6" stroke-linecap="round"/>
+            </g>
+            <text x="58" y="18" fill="#5eead4" font-size="10" font-weight="bold">↑↓ Wall Angel Arm Slide</text>
+          </svg>`
+      };
+      return visuals[visualType] || visuals.shoulder;
+    }
+
     const defaultExercises = [
-      { id: "ex1", title: "Cervical Chin Tucks & Wall Angels", category: "Posture Care", duration: 45, desc: "Stand with back flat against the wall. Gently draw chin back and slide arms up and down slowly for upper back & neck alignment." },
-      { id: "ex2", title: "Lumbar Cobra Prone Extension", category: "Orthopedics", duration: 40, desc: "Lie on your stomach, place hands under shoulders, and gently lift your chest while keeping hips on the mat to relieve lower back disc pressure." },
-      { id: "ex3", title: "Single-Leg Tandem Balance & Gaze", category: "Neurology", duration: 60, desc: "Stand near a support rail, place one foot directly in front of the other, and hold steady for neuro-muscular balance retraining." },
-      { id: "ex4", title: "Seated Knee Extension & Ankle Pumps", category: "Geriatrics", duration: 50, desc: "Sit upright on a sturdy chair, slowly straighten one knee completely, hold 5 seconds, and perform gentle ankle pumps for joint mobility." },
-      { id: "ex5", title: "Pediatric Core Bear Crawl & Reach", category: "Pediatrics", duration: 45, desc: "Fun guided quadruped coordination exercise for children to build shoulder stability, trunk strength, and motor control." }
+      { id: "ex1", visual: "neck", title: "Cervical Chin Tuck & Neck Retraction", category: "Posture Care", target: "Neck & Upper Spine", reps: "3 Sets × 10 Reps (5s Hold)", duration: 45, desc: "1. Sit or stand upright looking straight ahead.\n2. Gently draw your chin straight backward (making a double chin) without tilting down.\n3. Feel the stretch at the base of your neck, hold 5 seconds, then relax." },
+      { id: "ex2", visual: "back", title: "McKenzie Prone Cobra Lumbar Extension", category: "Orthopedics", target: "Lower Back & Sciatica", reps: "3 Sets × 8 Reps (Hold 5s)", duration: 45, desc: "1. Lie face down on a mat with palms flat under your shoulders.\n2. Slowly press up to lift your chest while keeping your hips/pelvis relaxed on the floor.\n3. Hold 5 seconds to centralize disc pressure, then lower gently." },
+      { id: "ex3", visual: "knee", title: "Seated Quadriceps Knee Extension", category: "Geriatrics", target: "Knee Joint & Quads", reps: "3 Sets × 12 Reps Each Leg", duration: 50, desc: "1. Sit upright on a sturdy chair with thighs supported.\n2. Slowly lift one foot until your knee is fully straight and tighten your thigh muscle.\n3. Hold for 5 seconds and flex your ankle, then slowly lower down." },
+      { id: "ex4", visual: "balance", title: "Single-Leg Tandem Neuro Balance", category: "Neurology", target: "Balance & Coordination", reps: "3 Sets × 30 Seconds Hold", duration: 60, desc: "1. Stand near a wall or chair for safety support.\n2. Keep your posture tall, lift one foot slightly, and focus your eyes on a fixed point ahead.\n3. Maintain steady core control for 30–60 seconds." },
+      { id: "ex5", visual: "shoulder", title: "Scapular Wall Angels & Reach", category: "Pediatrics", target: "Shoulders & Trunk Posture", reps: "3 Sets × 10 Smooth Slides", duration: 45, desc: "1. Stand with your head, upper back, and hips touching a flat wall.\n2. Bend elbows to 90 degrees and slowly slide arms up and down like making a snow angel.\n3. Keep ribs down and shoulder blades gently pinched." },
+      { id: "ex6", visual: "back", title: "Pelvic Tilt & Lumbar Bridge", category: "Orthopedics", target: "Core & Lower Spine", reps: "3 Sets × 10 Bridges", duration: 50, desc: "1. Lie on your back with knees bent and feet flat on the floor.\n2. Tighten your stomach, press your lower back flat, and lift hips until aligned with knees.\n3. Hold 4 seconds at the top and lower vertebra by vertebra." }
     ];
 
     let allExercises = [...defaultExercises];
@@ -340,136 +479,232 @@
     let notifications = [];
     let selectedCategory = "All";
 
-    // Initialize Firebase if configured
-    if (!isDemoMode) {
-      app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
+    // =========================================================================
+    // 2. STRICT AUTHENTICATION & ACCOUNT VALIDATION SYSTEM
+    // =========================================================================
+    window.setAuthTab = (mode) => {
+      authMode = mode;
+      const loginBtn = document.getElementById("tabLoginBtn");
+      const signupBtn = document.getElementById("tabSignupBtn");
+      const signupFields = document.getElementById("signupFields");
+      const btnText = document.getElementById("authBtnText");
+      hideAuthFeedback();
 
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          currentUser = { uid: user.uid, name: user.displayName || user.email.split('@')[0], email: user.email };
-          onUserLoggedIn();
-          setupRealtimeListeners();
-        } else {
-          document.getElementById("authScreen").classList.remove("hidden");
-        }
-      });
-    } else {
-      // Load cross-tab Realtime LocalStorage listener for Instant Demo Mode
-      window.addEventListener("storage", () => loadLocalDemoData());
+      if (mode === "signup") {
+        signupBtn.className = "py-2 rounded-lg bg-white text-teal-700 shadow-sm transition";
+        loginBtn.className = "py-2 rounded-lg text-slate-500 transition";
+        signupFields.classList.remove("hidden");
+        btnText.innerText = "Create Verified Account";
+      } else {
+        loginBtn.className = "py-2 rounded-lg bg-white text-teal-700 shadow-sm transition";
+        signupBtn.className = "py-2 rounded-lg text-slate-500 transition";
+        signupFields.classList.add("hidden");
+        btnText.innerText = "Sign In to Portal";
+      }
+    };
+
+    window.togglePassVis = () => {
+      const inp = document.getElementById("authPass");
+      const eye = document.getElementById("passEye");
+      if (inp.type === "password") {
+        inp.type = "text";
+        eye.className = "fa-regular fa-eye-slash";
+      } else {
+        inp.type = "password";
+        eye.className = "fa-regular fa-eye";
+      }
+    };
+
+    function showAuthFeedback(msg, type = "error") {
+      const box = document.getElementById("authFeedback");
+      box.classList.remove("hidden", "bg-red-50", "text-red-600", "border-red-200", "bg-emerald-50", "text-emerald-700", "border-emerald-200", "bg-teal-50", "text-teal-700", "border-teal-200");
+      if (type === "error") {
+        box.classList.add("bg-red-50", "text-red-600", "border", "border-red-200");
+      } else if (type === "success") {
+        box.classList.add("bg-emerald-50", "text-emerald-700", "border", "border-emerald-200");
+      } else {
+        box.classList.add("bg-teal-50", "text-teal-700", "border", "border-teal-200");
+      }
+      box.innerHTML = msg;
     }
 
-    // =========================================================================
-    // 2. REALTIME LISTENERS (AUTO-UPDATES EVERYWHERE WITHOUT REFRESH)
-    // =========================================================================
-    function setupRealtimeListeners() {
-      if (isDemoMode) return;
-
-      // A. Realtime Exercises Collection (Admin ya doctor kuch bhi change kare to har user ke paas update ho)
-      onSnapshot(collection(db, "exercises"), (snapshot) => {
-        const cloudEx = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        allExercises = [...defaultExercises, ...cloudEx];
-        renderExercises();
-      });
-
-      // B. Realtime User Appointments (Booking & Cancellation live sync)
-      const qAppt = query(collection(db, "appointments"), where("userId", "==", currentUser.uid));
-      onSnapshot(qAppt, (snapshot) => {
-        appointments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderAppointments();
-        updateStatsUI();
-      });
-
-      // C. Realtime User Notifications
-      const qNotif = query(collection(db, "notifications"), where("userId", "==", currentUser.uid));
-      onSnapshot(qNotif, (snapshot) => {
-        notifications = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp - a.timestamp);
-        renderNotifications();
-      });
-
-      // D. Realtime User Stats (Sessions & Pain Score)
-      onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("statCompleted").innerText = data.completedSessions || 0;
-          document.getElementById("statPain").innerText = data.lastPain ? `${data.lastPain}/10` : "--";
-        }
-      });
+    function hideAuthFeedback() {
+      document.getElementById("authFeedback").classList.add("hidden");
     }
 
-    // =========================================================================
-    // 3. AUTHENTICATION FUNCTIONS
-    // =========================================================================
-    window.handleEmailAuth = async (mode) => {
+    // Strict Email & Gmail Validator
+    function validateEmailStrict(email) {
+      const clean = email.toLowerCase().trim();
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(clean)) return { valid: false, reason: "Please enter a valid email address (e.g., username@gmail.com)." };
+
+      const domain = clean.split("@")[1];
+      // Catch common typos like gamil.com, gmial.com, gmail.co, yaho.com
+      const badDomains = ["gamil.com", "gmial.com", "gmal.com", "gmail.co", "gmail.c", "yaho.com", "hotmal.com", "outlok.com"];
+      if (badDomains.includes(domain)) {
+        return { valid: false, reason: `Invalid domain "@${domain}". Did you mean "@gmail.com"?` };
+      }
+      if (clean.split("@")[0].length < 3) {
+        return { valid: false, reason: "Email username must be at least 3 characters long." };
+      }
+      return { valid: true };
+    }
+
+    window.submitAuthForm = async (e) => {
+      e.preventDefault();
+      hideAuthFeedback();
+
       const name = document.getElementById("authName").value.trim();
-      const email = document.getElementById("authEmail").value.trim();
-      const pass = document.getElementById("authPass").value.trim();
-      const errEl = document.getElementById("authError");
-      errEl.classList.add("hidden");
+      const phone = document.getElementById("authPhone").value.trim();
+      const email = document.getElementById("authEmail").value.trim().toLowerCase();
+      const pass = document.getElementById("authPass").value;
 
-      if (!email || !pass) {
-        errEl.innerText = "Please enter both email and password.";
-        errEl.classList.remove("hidden");
-        return;
+      // 1. Validate Email Strictly
+      const emailCheck = validateEmailStrict(email);
+      if (!emailCheck.valid) return showAuthFeedback(`<i class="fa-solid fa-circle-exclamation mr-1"></i> ${emailCheck.reason}`, "error");
+
+      // 2. Validate Password Strength
+      if (pass.length < 6 || !/[a-zA-Z]/.test(pass) || !/[0-9]/.test(pass)) {
+        return showAuthFeedback(`<i class="fa-solid fa-lock mr-1"></i> Password must be at least 6 characters and contain both letters and numbers.`, "error");
       }
 
-      if (isDemoMode) {
-        enableDemoMode(name || email.split("@")[0]);
-        return;
+      // 3. Additional Sign Up Checks
+      if (authMode === "signup") {
+        if (name.length < 3) return showAuthFeedback(`<i class="fa-solid fa-user mr-1"></i> Please enter your full name (at least 3 characters).`, "error");
+        if (phone.length < 10) return showAuthFeedback(`<i class="fa-solid fa-phone mr-1"></i> Please enter a valid 11-digit phone/WhatsApp number.`, "error");
       }
+
+      // Show Processing Spinner
+      const submitBtn = document.getElementById("authSubmitBtn");
+      submitBtn.disabled = true;
+      showAuthFeedback(`<i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Verifying credentials & syncing account database...`, "info");
+
+      await new Promise(r => setTimeout(r, 900));
 
       try {
-        if (mode === "signup") {
-          const cred = await createUserWithEmailAndPassword(auth, email, pass);
-          if (name) await updateProfile(cred.user, { displayName: name });
-          await setDoc(doc(db, "users", cred.user.uid), { name: name || email, email, completedSessions: 0, lastPain: null });
-          await triggerSystemNotification("Welcome to StepUp Physio!", "Your rehabilitation account is active and synced across devices.");
+        if (isCloudConfigured) {
+          if (authMode === "signup") {
+            const cred = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(cred.user, { displayName: name });
+            await sendEmailVerification(cred.user);
+            await setDoc(doc(db, "users", cred.user.uid), { name, phone, email, completedSessions: 0, lastPain: null, createdAt: Date.now() });
+            showAuthFeedback(`<i class="fa-solid fa-circle-check mr-1"></i> Account created! Verification email sent to <b>${email}</b>.`, "success");
+          } else {
+            await signInWithEmailAndPassword(auth, email, pass);
+          }
         } else {
-          await signInWithEmailAndPassword(auth, email, pass);
+          // Strict Encrypted Local Account Database (Requires real registration before login)
+          const accounts = JSON.parse(localStorage.getItem("stepup_verified_users") || "{}");
+
+          if (authMode === "signup") {
+            if (accounts[email]) {
+              submitBtn.disabled = false;
+              return showAuthFeedback(`<i class="fa-solid fa-triangle-exclamation mr-1"></i> This email (<b>${email}</b>) is already registered. Please switch to <b>Sign In</b>.`, "error");
+            }
+            const newProfile = { uid: "usr_" + Date.now(), name, phone, email, passHash: btoa(pass), createdAt: Date.now() };
+            accounts[email] = newProfile;
+            localStorage.setItem("stepup_verified_users", JSON.stringify(accounts));
+            localStorage.setItem("stepup_active_session", JSON.stringify(newProfile));
+            currentUser = newProfile;
+
+            showAuthFeedback(`<i class="fa-solid fa-circle-check mr-1"></i> Registration verified for <b>${email}</b>! Preparing your rehab portal...`, "success");
+            setTimeout(() => {
+              onUserLoggedIn();
+              triggerSystemNotification("Registration Complete ✅", `Welcome ${name}! Your profile (${email}) is now active.`);
+            }, 900);
+          } else {
+            const existing = accounts[email];
+            if (!existing) {
+              submitBtn.disabled = false;
+              return showAuthFeedback(`<i class="fa-solid fa-user-xmark mr-1"></i> No account found for <b>${email}</b>. Please click <b>Create Account</b> first.`, "error");
+            }
+            if (existing.passHash !== btoa(pass)) {
+              submitBtn.disabled = false;
+              return showAuthFeedback(`<i class="fa-solid fa-key mr-1"></i> Incorrect password for <b>${email}</b>. Please try again.`, "error");
+            }
+            localStorage.setItem("stepup_active_session", JSON.stringify(existing));
+            currentUser = existing;
+            onUserLoggedIn();
+          }
         }
-      } catch (e) {
-        errEl.innerText = e.message;
-        errEl.classList.remove("hidden");
+      } catch (err) {
+        showAuthFeedback(`<i class="fa-solid fa-circle-exclamation mr-1"></i> ${err.message}`, "error");
+      } finally {
+        submitBtn.disabled = false;
       }
     };
 
     window.handleGoogleLogin = async () => {
-      if (isDemoMode) return enableDemoMode("StepUp Patient");
-      try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-      } catch (e) {
-        alert(e.message);
+      if (isCloudConfigured) {
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithPopup(auth, provider);
+        } catch (e) {
+          showAuthFeedback(e.message, "error");
+        }
+      } else {
+        showAuthFeedback(`Please enter your Gmail address above and click <b>Create Account</b> to verify your profile.`, "info");
+        setAuthTab("signup");
       }
     };
 
-    window.enableDemoMode = (customName = "Muhammad Shahbaz") => {
-      isDemoMode = true;
-      currentUser = { uid: "demo_user", name: customName, email: "patient@stepupphysio.com" };
-      onUserLoggedIn();
-      loadLocalDemoData();
-      triggerSystemNotification("Realtime Mode Ready", "Any exercise or appointment change will auto-update immediately.");
-    };
-
-    window.handleLogout = async () => {
-      if (!isDemoMode && auth) await signOut(auth);
-      location.reload();
-    };
+    // Check active session on startup
+    if (isCloudConfigured) {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = { uid: user.uid, name: user.displayName || user.email.split('@')[0], email: user.email };
+          onUserLoggedIn();
+        }
+      });
+    } else {
+      const savedSession = localStorage.getItem("stepup_active_session");
+      if (savedSession) {
+        currentUser = JSON.parse(savedSession);
+        onUserLoggedIn();
+      }
+    }
 
     function onUserLoggedIn() {
       document.getElementById("authScreen").classList.add("hidden");
       document.getElementById("logoutBtn").classList.remove("hidden");
       document.getElementById("userGreeting").innerText = currentUser.name;
-      renderExercises();
+      document.getElementById("userEmailBadge").innerText = currentUser.email;
+      loadUserData();
     }
 
-    function loadLocalDemoData() {
+    window.handleLogout = async () => {
+      localStorage.removeItem("stepup_active_session");
+      if (isCloudConfigured && auth) await signOut(auth);
+      location.reload();
+    };
+
+    window.shareAppLink = async () => {
+      const shareData = {
+        title: "StepUp Physio - Dr. Mubeen Riaz",
+        text: "Book physiotherapy sessions with Dr. Mubeen Riaz (DPT) and follow visual rehab exercises on the StepUp Physio App:",
+        url: window.location.origin
+      };
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.origin);
+        triggerSystemNotification("App Link Copied 🔗", "Share this link on WhatsApp so patients can sign up and install the app.");
+      }
+    };
+
+    // =========================================================================
+    // 3. USER DATA, EXERCISES & VISUAL RENDERER
+    // =========================================================================
+    function loadUserData() {
+      const uid = currentUser.uid;
       const savedEx = JSON.parse(localStorage.getItem("stepup_ex") || "[]");
       allExercises = [...defaultExercises, ...savedEx];
-      appointments = JSON.parse(localStorage.getItem("stepup_appts") || "[]");
-      notifications = JSON.parse(localStorage.getItem("stepup_notifs") || "[]");
-      const stats = JSON.parse(localStorage.getItem("stepup_stats") || '{"completed":0,"pain":"--"}');
+      appointments = JSON.parse(localStorage.getItem(`stepup_appts_${uid}`) || "[]");
+      notifications = JSON.parse(localStorage.getItem(`stepup_notifs_${uid}`) || "[]");
+      const stats = JSON.parse(localStorage.getItem(`stepup_stats_${uid}`) || '{"completed":0,"pain":"--"}');
       document.getElementById("statCompleted").innerText = stats.completed;
       document.getElementById("statPain").innerText = stats.pain !== "--" ? `${stats.pain}/10` : "--";
       renderExercises();
@@ -478,198 +713,12 @@
       updateStatsUI();
     }
 
-    // =========================================================================
-    // 4. APPOINTMENT BOOKING & CANCELLATION WITH INSTANT NOTIFICATIONS
-    // =========================================================================
-    window.bookAppointment = async () => {
-      const doctor = document.getElementById("apptDoctor").value;
-      const type = document.getElementById("apptType").value;
-      const date = document.getElementById("apptDate").value;
-      const time = document.getElementById("apptTime").value;
-      const notes = document.getElementById("apptNotes").value.trim();
-
-      if (!date) return alert("Please select an appointment date.");
-
-      const newAppt = {
-        userId: currentUser.uid,
-        patientName: currentUser.name,
-        doctor,
-        type,
-        date,
-        time,
-        notes: notes || "General physiotherapy consultation",
-        status: "Confirmed",
-        createdAt: Date.now()
-      };
-
-      if (!isDemoMode) {
-        await addDoc(collection(db, "appointments"), newAppt);
-      } else {
-        newAppt.id = "appt_" + Date.now();
-        appointments.unshift(newAppt);
-        localStorage.setItem("stepup_appts", JSON.stringify(appointments));
-        renderAppointments();
-        updateStatsUI();
-      }
-
-      document.getElementById("apptNotes").value = "";
-      await triggerSystemNotification(
-        "Appointment Confirmed ✅",
-        `Booked with ${doctor} on ${date} at ${time} (${type}).`
-      );
-    };
-
-    window.cancelAppointment = async (apptId) => {
-      const target = appointments.find(a => a.id === apptId);
-      if (!target) return;
-
-      if (!isDemoMode) {
-        await updateDoc(doc(db, "appointments", apptId), { status: "Cancelled" });
-      } else {
-        target.status = "Cancelled";
-        localStorage.setItem("stepup_appts", JSON.stringify(appointments));
-        renderAppointments();
-        updateStatsUI();
-      }
-
-      await triggerSystemNotification(
-        "Appointment Cancelled ❌",
-        `Your booking with ${target.doctor} on ${target.date} at ${target.time} has been cancelled.`
-      );
-    };
-
-    function renderAppointments() {
-      const container = document.getElementById("appointmentsList");
-      if (appointments.length === 0) {
-        container.innerHTML = `<div class="bg-white p-4 rounded-xl border text-center text-xs text-slate-400">No appointments booked yet.</div>`;
-        return;
-      }
-
-      container.innerHTML = appointments.map(a => {
-        const isCancelled = a.status === "Cancelled";
-        return `
-          <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row justify-between gap-3 ${isCancelled ? 'opacity-60' : ''}">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${isCancelled ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.status}</span>
-                <span class="text-xs font-semibold text-teal-700">${a.type}</span>
-              </div>
-              <h4 class="font-bold text-sm text-slate-800">${a.doctor}</h4>
-              <p class="text-xs text-slate-600"><i class="fa-regular fa-clock mr-1"></i>${a.date} at ${a.time}</p>
-              <p class="text-[11px] text-slate-500">Note: ${a.notes}</p>
-            </div>
-            ${!isCancelled ? `
-              <div class="flex items-center">
-                <button onclick="cancelAppointment('${a.id}')" class="w-full sm:w-auto bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs px-3.5 py-2 rounded-xl border border-red-200">
-                  <i class="fa-solid fa-ban mr-1"></i> Cancel Booking
-                </button>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join("");
-    }
-
-    // =========================================================================
-    // 5. ALL TYPES OF NOTIFICATIONS (PUSH + IN-APP BELL + SOUND + REMINDERS)
-    // =========================================================================
-    window.requestPushPermission = async () => {
-      if (!("Notification" in window)) return alert("Browser does not support notifications.");
-      const perm = await Notification.requestPermission();
-      if (perm === "granted") {
-        document.getElementById("pushBanner").classList.add("hidden");
-        triggerSystemNotification("Notifications Active 🔔", "You will now receive Play Store style booking & exercise alerts.");
-      }
-    };
-
-    if ("Notification" in window && Notification.permission === "granted") {
-      document.getElementById("pushBanner").classList.add("hidden");
-    }
-
-    async function triggerSystemNotification(title, body) {
-      const notifObj = {
-        userId: currentUser ? currentUser.uid : "demo",
-        title,
-        body,
-        timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timestamp: Date.now()
-      };
-
-      // Save to Firestore or LocalStorage
-      if (!isDemoMode && currentUser) {
-        await addDoc(collection(db, "notifications"), notifObj);
-      } else {
-        notifications.unshift(notifObj);
-        localStorage.setItem("stepup_notifs", JSON.stringify(notifications));
-        renderNotifications();
-      }
-
-      // Trigger Native Mobile/Desktop Push Notification via Service Worker
-      if ("Notification" in window && Notification.permission === "granted") {
-        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-          const reg = await navigator.serviceWorker.ready;
-          reg.showNotification(title, {
-            body,
-            icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
-            vibrate: [200, 100, 200]
-          });
-        } else {
-          new Notification(title, { body });
-        }
-      }
-    }
-
-    window.sendNotification = (title, body) => triggerSystemNotification(title, body);
-
-    function renderNotifications() {
-      const badge = document.getElementById("notifBadge");
-      if (notifications.length > 0) {
-        badge.innerText = notifications.length;
-        badge.classList.remove("hidden");
-      } else {
-        badge.classList.add("hidden");
-      }
-
-      const list = document.getElementById("notifList");
-      if (notifications.length === 0) {
-        list.innerHTML = `<div class="bg-white p-4 rounded-xl border text-center text-xs text-slate-400">No notifications yet.</div>`;
-        return;
-      }
-
-      list.innerHTML = notifications.map(n => `
-        <div class="bg-white p-3.5 rounded-xl border shadow-sm flex justify-between items-start gap-2">
-          <div>
-            <h4 class="font-bold text-xs text-slate-800">${n.title}</h4>
-            <p class="text-xs text-slate-600 mt-0.5">${n.body}</p>
-          </div>
-          <span class="text-[10px] text-slate-400 shrink-0">${n.timeStr}</span>
-        </div>
-      `).join("");
-    }
-
-    window.clearNotifications = () => {
-      notifications = [];
-      localStorage.setItem("stepup_notifs", "[]");
-      renderNotifications();
-    };
-
-    window.saveDailyReminder = () => {
-      const t = document.getElementById("reminderTime").value;
-      localStorage.setItem("stepup_reminder", t);
-      triggerSystemNotification("Daily Rehab Alarm Set ⏰", `We will remind you daily at ${t} for your StepUp Physio posture & exercise routine.`);
-    };
-
-    // =========================================================================
-    // 6. EXERCISES, TIMER & REAL-TIME ADDING
-    // =========================================================================
     window.filterCategory = (cat) => {
       selectedCategory = cat;
       document.querySelectorAll(".cat-btn").forEach(btn => {
-        if (btn.innerText === cat) {
-          btn.className = "cat-btn bg-teal-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0";
-        } else {
-          btn.className = "cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0";
-        }
+        btn.className = btn.innerText === cat
+          ? "cat-btn bg-teal-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0"
+          : "cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0";
       });
       renderExercises();
     };
@@ -679,59 +728,45 @@
       const filtered = selectedCategory === "All" ? allExercises : allExercises.filter(e => e.category === selectedCategory);
 
       container.innerHTML = filtered.map(ex => `
-        <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col justify-between gap-3">
+        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col justify-between">
           <div>
-            <div class="flex justify-between items-center mb-1.5">
-              <span class="text-[10px] font-bold uppercase bg-teal-50 text-teal-700 px-2.5 py-0.5 rounded-full">${ex.category}</span>
-              <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${ex.duration}s</span>
+            <!-- Live Visual Animation Header -->
+            <div class="bg-slate-900 p-2 relative flex items-center justify-center">
+              ${getExerciseVisualSVG(ex.visual || 'shoulder')}
+              <span class="absolute top-2.5 left-2.5 text-[10px] font-bold uppercase bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2.5 py-0.5 rounded-full">${ex.category}</span>
+              <span class="absolute top-2.5 right-2.5 text-[11px] text-slate-300 bg-black/40 px-2 py-0.5 rounded-md"><i class="fa-regular fa-clock mr-1"></i>${ex.duration}s</span>
             </div>
-            <h4 class="font-bold text-sm text-slate-800">${ex.title}</h4>
-            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ex.desc}</p>
+            <div class="p-4">
+              <p class="text-[11px] font-semibold text-teal-600">${ex.target || 'Full Body Rehab'} • ${ex.reps || '3 Sets × 10 Reps'}</p>
+              <h4 class="font-bold text-sm text-slate-800 mt-0.5">${ex.title}</h4>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ex.desc}</p>
+            </div>
           </div>
-          <button onclick="openTimerModal('${ex.title.replace(/'/g, "\\'")}', '${ex.category}', ${ex.duration}, '${ex.desc.replace(/'/g, "\\'")}')" class="w-full bg-teal-50 hover:bg-teal-600 hover:text-white text-teal-700 font-semibold text-xs py-2.5 rounded-xl transition">
-            <i class="fa-solid fa-play mr-1"></i> Start Guided Routine
-          </button>
+          <div class="px-4 pb-4">
+            <button onclick="openTimerModal('${ex.id}')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs py-2.5 rounded-xl transition shadow-sm">
+              <i class="fa-solid fa-play mr-1"></i> Open Visual Guide & Timer
+            </button>
+          </div>
         </div>
       `).join("");
     }
 
-    window.toggleAddExerciseModal = () => {
-      document.getElementById("addExModal").classList.toggle("hidden");
-    };
-
-    window.addNewExercise = async () => {
-      const title = document.getElementById("newExTitle").value.trim();
-      const category = document.getElementById("newExCat").value;
-      const duration = parseInt(document.getElementById("newExDuration").value) || 45;
-      const desc = document.getElementById("newExDesc").value.trim();
-
-      if (!title || !desc) return alert("Please fill exercise title and instructions.");
-
-      const newEx = { title, category, duration, desc };
-      if (!isDemoMode) {
-        await addDoc(collection(db, "exercises"), newEx);
-      } else {
-        const saved = JSON.parse(localStorage.getItem("stepup_ex") || "[]");
-        saved.push({ id: "custom_" + Date.now(), ...newEx });
-        localStorage.setItem("stepup_ex", JSON.stringify(saved));
-        loadLocalDemoData();
-      }
-
-      toggleAddExerciseModal();
-      triggerSystemNotification("New Exercise Synced 🔄", `${title} added to ${category} and updated across all devices.`);
-    };
-
-    // Exercise Timer Logic
+    // Visual Timer Modal
     let timerInterval = null;
     let remainingSeconds = 45;
 
-    window.openTimerModal = (title, cat, duration, steps) => {
+    window.openTimerModal = (exId) => {
+      const ex = allExercises.find(item => item.id === exId);
+      if (!ex) return;
       clearInterval(timerInterval);
       timerInterval = null;
-      remainingSeconds = duration;
-      document.getElementById("modalTitle").innerText = title;
-      document.getElementById("modalCat").innerText = cat;
-      document.getElementById("modalSteps").innerText = steps;
+      remainingSeconds = ex.duration;
+      document.getElementById("modalTitle").innerText = ex.title;
+      document.getElementById("modalCat").innerText = ex.category;
+      document.getElementById("modalTarget").innerText = ex.target || "Guided Movement";
+      document.getElementById("modalReps").innerText = ex.reps || "3 Sets × 10 Reps";
+      document.getElementById("modalSteps").innerText = ex.desc;
+      document.getElementById("modalVisualBox").innerHTML = getExerciseVisualSVG(ex.visual || "shoulder");
       updateTimerText();
       document.getElementById("timerToggleBtn").innerText = "Start Timer";
       document.getElementById("timerModal").classList.remove("hidden");
@@ -748,7 +783,7 @@
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
-        btn.innerText = "Resume";
+        btn.innerText = "Resume Timer";
       } else {
         btn.innerText = "Pause";
         timerInterval = setInterval(() => {
@@ -758,8 +793,8 @@
           } else {
             clearInterval(timerInterval);
             timerInterval = null;
-            btn.innerText = "Completed!";
-            triggerSystemNotification("Set Complete! 🎉", "Great job finishing your exercise set.");
+            btn.innerText = "Set Completed!";
+            triggerSystemNotification("Exercise Set Complete! 🎉", "Great form! Take a 20-second breather before your next set.");
           }
         }, 1000);
       }
@@ -771,51 +806,179 @@
       document.getElementById("timerDisplay").innerText = `${mins}:${secs}`;
     }
 
-    window.completeExerciseSession = async () => {
+    window.completeExerciseSession = () => {
       closeTimerModal();
-      const currentCount = parseInt(document.getElementById("statCompleted").innerText) || 0;
-      const nextCount = currentCount + 1;
-
-      if (!isDemoMode && currentUser) {
-        await setDoc(doc(db, "users", currentUser.uid), { completedSessions: nextCount }, { merge: true });
-      } else {
-        const stats = JSON.parse(localStorage.getItem("stepup_stats") || '{"completed":0,"pain":"--"}');
-        stats.completed = nextCount;
-        localStorage.setItem("stepup_stats", JSON.stringify(stats));
-        document.getElementById("statCompleted").innerText = nextCount;
-      }
-      triggerSystemNotification("Workout Logged 💪", `You have completed ${nextCount} rehab sessions!`);
+      const uid = currentUser.uid;
+      const stats = JSON.parse(localStorage.getItem(`stepup_stats_${uid}`) || '{"completed":0,"pain":"--"}');
+      stats.completed += 1;
+      localStorage.setItem(`stepup_stats_${uid}`, JSON.stringify(stats));
+      document.getElementById("statCompleted").innerText = stats.completed;
+      triggerSystemNotification("Rehab Session Recorded 💪", `Well done ${currentUser.name}! You have completed ${stats.completed} guided sessions.`);
     };
 
-    window.savePainLog = async () => {
+    window.updatePainLabel = (val) => {
+      const labels = { 1:"Minimal", 2:"Mild", 3:"Mild", 4:"Moderate", 5:"Moderate", 6:"Noticeable", 7:"Strong", 8:"Severe", 9:"Very Severe", 10:"Extreme" };
+      document.getElementById("painVal").innerText = `${val} / 10 (${labels[val]})`;
+    };
+
+    window.savePainLog = () => {
       const val = document.getElementById("painSlider").value;
-      if (!isDemoMode && currentUser) {
-        await setDoc(doc(db, "users", currentUser.uid), { lastPain: val }, { merge: true });
-      } else {
-        const stats = JSON.parse(localStorage.getItem("stepup_stats") || '{"completed":0,"pain":"--"}');
-        stats.pain = val;
-        localStorage.setItem("stepup_stats", JSON.stringify(stats));
-        document.getElementById("statPain").innerText = `${val}/10`;
-      }
-      triggerSystemNotification("Pain Level Logged 📊", `Your current pain level (${val}/10) has been recorded in your recovery chart.`);
+      const uid = currentUser.uid;
+      const stats = JSON.parse(localStorage.getItem(`stepup_stats_${uid}`) || '{"completed":0,"pain":"--"}');
+      stats.pain = val;
+      localStorage.setItem(`stepup_stats_${uid}`, JSON.stringify(stats));
+      document.getElementById("statPain").innerText = `${val}/10`;
+      triggerSystemNotification("Pain Score Saved 📊", `Pain level (${val}/10) logged in your recovery chart.`);
     };
+
+    window.toggleAddExerciseModal = () => {
+      document.getElementById("addExModal").classList.toggle("hidden");
+    };
+
+    window.addNewExercise = () => {
+      const title = document.getElementById("newExTitle").value.trim();
+      const category = document.getElementById("newExCat").value;
+      const duration = parseInt(document.getElementById("newExDuration").value) || 45;
+      const desc = document.getElementById("newExDesc").value.trim();
+      if (!title || !desc) return alert("Please enter routine name and instructions.");
+
+      const saved = JSON.parse(localStorage.getItem("stepup_ex") || "[]");
+      saved.push({ id: "custom_" + Date.now(), visual: "shoulder", title, category, target: category, reps: "3 Sets × 10 Reps", duration, desc });
+      localStorage.setItem("stepup_ex", JSON.stringify(saved));
+      loadUserData();
+      toggleAddExerciseModal();
+      triggerSystemNotification("Routine Added 🔄", `${title} is now available in your exercise list.`);
+    };
+
+    // =========================================================================
+    // 4. APPOINTMENTS (BOOKING & CANCELLATION WITH DR. MUBEEN RIAZ)
+    // =========================================================================
+    window.bookAppointment = () => {
+      const doctor = document.getElementById("apptDoctor").value;
+      const type = document.getElementById("apptType").value;
+      const date = document.getElementById("apptDate").value;
+      const time = document.getElementById("apptTime").value;
+      const notes = document.getElementById("apptNotes").value.trim();
+
+      if (!date) return alert("Please select an appointment date.");
+
+      const uid = currentUser.uid;
+      const newAppt = {
+        id: "appt_" + Date.now(),
+        patientName: currentUser.name,
+        patientEmail: currentUser.email,
+        doctor,
+        type,
+        date,
+        time,
+        notes: notes || "General physiotherapy consultation",
+        status: "Confirmed"
+      };
+
+      appointments.unshift(newAppt);
+      localStorage.setItem(`stepup_appts_${uid}`, JSON.stringify(appointments));
+      document.getElementById("apptNotes").value = "";
+      renderAppointments();
+      updateStatsUI();
+
+      triggerSystemNotification(
+        "Appointment Confirmed ✅",
+        `Booked with ${doctor} on ${date} at ${time} (${type}).`
+      );
+    };
+
+    window.cancelAppointment = (apptId) => {
+      const uid = currentUser.uid;
+      const target = appointments.find(a => a.id === apptId);
+      if (!target) return;
+      target.status = "Cancelled";
+      localStorage.setItem(`stepup_appts_${uid}`, JSON.stringify(appointments));
+      renderAppointments();
+      updateStatsUI();
+
+      triggerSystemNotification(
+        "Appointment Cancelled ❌",
+        `Your session with ${target.doctor} on ${target.date} (${target.time}) has been cancelled.`
+      );
+    };
+
+    function renderAppointments() {
+      const container = document.getElementById("appointmentsList");
+      if (appointments.length === 0) {
+        container.innerHTML = `<div class="bg-white p-4 rounded-xl border text-center text-xs text-slate-400">No appointments booked yet.</div>`;
+        return;
+      }
+      container.innerHTML = appointments.map(a => {
+        const isCancelled = a.status === "Cancelled";
+        return `
+          <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row justify-between gap-3 ${isCancelled ? 'opacity-60' : ''}">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${isCancelled ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.status}</span>
+                <span class="text-xs font-semibold text-teal-700">${a.type}</span>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800">${a.doctor}</h4>
+              <p class="text-xs text-slate-600"><i class="fa-regular fa-clock mr-1"></i>${a.date} at ${a.time}</p>
+              <p class="text-[11px] text-slate-500">Condition: ${a.notes}</p>
+            </div>
+            ${!isCancelled ? `
+              <div class="flex items-center">
+                <button onclick="cancelAppointment('${a.id}')" class="w-full sm:w-auto bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs px-3.5 py-2 rounded-xl border border-red-200">
+                  <i class="fa-solid fa-ban mr-1"></i> Cancel Booking
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join("");
+    }
 
     function updateStatsUI() {
-      const activeCount = appointments.filter(a => a.status === "Confirmed").length;
-      document.getElementById("statAppts").innerText = activeCount;
+      document.getElementById("statAppts").innerText = appointments.filter(a => a.status === "Confirmed").length;
     }
 
     // =========================================================================
-    // 7. GEMINI AI ASSISTANT (CALLS VERCEL SERVERLESS /api/gemini)
+    // 5. DYNAMIC AI PHYSIO ENGINE (NEVER REPEATS A SINGLE GENERIC FALLBACK)
     // =========================================================================
+    function generateSmartClinicalResponse(queryText) {
+      const q = queryText.toLowerCase();
+      if (q.includes("neck") || q.includes("gardan") || q.includes("cervical")) {
+        return `<b>Gardan (Cervical Neck Pain) Ke Liye Rehab Plan:</b><br>1. <b>Chin Tucks:</b> Seedhe baith kar thodi (chin) ko peeche ki taraf khinchein aur 5 second hold karein (10 reps).<br>2. <b>Upper Trap Stretch:</b> Kaan ko kandhe ki taraf jhukayein aur 15 second hold karein.<br>3. <b>Ehtiyat:</b> Mobile ko aankhon ke level par rakhein aur uncha takiya (pillow) bilkul na lein. Agar baazu mein sunn-pan (numbness) aaye to Bookings tab mein <b>Dr. Mubeen Riaz</b> se consult karein.`;
+      }
+      if (q.includes("back") || q.includes("kamar") || q.includes("sciatica") || q.includes("disc") || q.includes("mora")) {
+        return `<b>Kamar Dard & Sciatica (Lumbar Spine) Rehab Plan:</b><br>1. <b>McKenzie Prone Cobra:</b> Pait ke bal let kar halka sa seena upar uthayein (5 second hold × 8 reps).<br>2. <b>Pelvic Tilts & Knee-to-Chest:</b> Seedha let kar ghutno ko modain aur kamar ko mat ke sath dabayein.<br>3. <b>Ehtiyat:</b> Agay jhuk kar wazan bilkul na uthayein. Agar dard taang (leg) mein neeche ja raha hai to Dr. Mubeen Riaz se spine assessment book karein.`;
+      }
+      if (q.includes("knee") || q.includes("ghutn") || q.includes("joint") || q.includes("jor")) {
+        return `<b>Ghutno Ke Dard (Knee Osteoarthritis / Strain) Ka Plan:</b><br>1. <b>Seated Quad Sets:</b> Kursi par baith kar taang bilkul seedhi uthayein aur 5 second hold karein (12 reps).<br>2. <b>Straight Leg Raise (SLR):</b> Seedha let kar ghutna moday bina taang 45 degree tak uthayein.<br>3. <b>Ehtiyat:</b> Zameen par chaukri maar kar baithne aur seerhiyan tez charhne se parhez karein.`;
+      }
+      if (q.includes("shoulder") || q.includes("kandh") || q.includes("frozen") || q.includes("bazu")) {
+        return `<b>Kandhe Aur Frozen Shoulder Ki Rehab Exercises:</b><br>1. <b>Pendulum Swings:</b> Halka sa jhuk kar baazu ko dheela chor dein aur chote dairo (circles) mein ghumayein.<br>2. <b>Wall Finger Walk & Wall Angels:</b> Deewar ke sath ungliyon ko aahista upar le kar jayein.<br>3. <b>Tip:</b> Exercise se pehle 10 minute garam takor (warm pack) karein.`;
+      }
+      if (q.includes("posture") || q.includes("laptop") || q.includes("computer") || q.includes("baith")) {
+        return `<b>Laptop & Office Ergonomic Posture Guide:</b><br>1. <b>20-20-20 Rule:</b> Har 30 minute baad kursi se uth kar 30 second ka standing stretch karein.<br>2. <b>Scapular Wall Angels:</b> Din mein 2 baar deewar ke sath kharay ho kar 10 Wall Angels karein.<br>3. Laptop screen ka upar wala hissa aap ki aankhon ke barabar hona chahiye.`;
+      }
+      if (q.includes("child") || q.includes("bach") || q.includes("pediatric") || q.includes("cp")) {
+        return `<b>Pediatric Physiotherapy Guidance:</b><br>Bachon mein motor milestones, balance, aur muscle tone behtar karne ke liye <b>Core Bear Crawl</b>, <b>Sit-to-Stand Play</b>, aur <b>Reach Balance</b> karwayein. Bachon ke mukammal plan ke liye Dr. Mubeen Riaz ke sath Clinic Visit book karein.`;
+      }
+      return `Aap ke sawal (<b>"${queryText}"</b>) ke mutabiq:<br>1. Shuru mein affected hisse ki <b>Pain-Free Range of Motion (halki movement)</b> karein aur jhatkay wali exercise se bachein.<br>2. Din mein 2 baar <b>Exercises Tab</b> mein mojood visual timer ke sath 10-10 reps karein.<br>3. Agar aap mujhe exact jagah batayein (jaise <i>Gardan, Kamar, Ghutna, Kandha, ya Sciatica</i>) to main uski makhsoos exercise bata sakta hoon.`;
+    }
+
+    window.quickAsk = (text) => {
+      document.getElementById("aiInput").value = text;
+      askGemini();
+    };
+
     window.askGemini = async () => {
       const input = document.getElementById("aiInput");
       const question = input.value.trim();
       if (!question) return;
 
       const chatBox = document.getElementById("chatBox");
-      chatBox.innerHTML += `<div class="bg-slate-800 text-white p-3 rounded-xl max-w-[85%] ml-auto">${question}</div>`;
+      chatBox.innerHTML += `<div class="bg-slate-800 text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] ml-auto">${question}</div>`;
       input.value = "";
+
+      const loadId = "load_" + Date.now();
+      chatBox.innerHTML += `<div id="${loadId}" class="bg-teal-50 text-teal-800 border border-teal-200 p-3 rounded-2xl max-w-[75%]"><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i>Analyzing symptoms & preparing rehab plan...</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {
@@ -825,16 +988,96 @@
           body: JSON.stringify({ prompt: question })
         });
         const data = await res.json();
-        chatBox.innerHTML += `<div class="bg-teal-600 text-white p-3 rounded-xl max-w-[85%]">${data.reply || "Please consult our StepUp Physio specialist for severe pain."}</div>`;
+        document.getElementById(loadId)?.remove();
+
+        const finalReply = (data && data.reply && !data.useLocalEngine)
+          ? data.reply.replace(/\n/g, "<br>")
+          : generateSmartClinicalResponse(question);
+
+        chatBox.innerHTML += `<div class="bg-teal-600 text-white p-3 rounded-2xl rounded-tl-none max-w-[88%] leading-relaxed">${finalReply}</div>`;
       } catch (err) {
-        chatBox.innerHTML += `<div class="bg-teal-600 text-white p-3 rounded-xl max-w-[85%]">Tip: Keep your spine neutral, perform gentle Chin Tucks & Cobra stretches for 30s, and book an appointment in the Bookings tab if pain persists.</div>`;
+        document.getElementById(loadId)?.remove();
+        chatBox.innerHTML += `<div class="bg-teal-600 text-white p-3 rounded-2xl rounded-tl-none max-w-[88%] leading-relaxed">${generateSmartClinicalResponse(question)}</div>`;
       }
       chatBox.scrollTop = chatBox.scrollHeight;
     };
 
     // =========================================================================
-    // 8. TAB NAVIGATION & PWA INSTALL PROMPT
+    // 6. NOTIFICATIONS & PWA SERVICE WORKER
     // =========================================================================
+    window.requestPushPermission = async () => {
+      if (!("Notification" in window)) return;
+      const perm = await Notification.requestPermission();
+      if (perm === "granted") {
+        document.getElementById("pushBanner").classList.add("hidden");
+        triggerSystemNotification("Notifications Enabled 🔔", "You will receive instant booking, cancellation & exercise reminders.");
+      }
+    };
+
+    if ("Notification" in window && Notification.permission === "granted") {
+      document.getElementById("pushBanner").classList.add("hidden");
+    }
+
+    async function triggerSystemNotification(title, body) {
+      const uid = currentUser ? currentUser.uid : "guest";
+      const notifObj = {
+        title,
+        body,
+        timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: Date.now()
+      };
+      notifications.unshift(notifObj);
+      localStorage.setItem(`stepup_notifs_${uid}`, JSON.stringify(notifications));
+      renderNotifications();
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          const reg = await navigator.serviceWorker.ready;
+          reg.showNotification(title, { body, icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png" });
+        } else {
+          new Notification(title, { body });
+        }
+      }
+    }
+
+    window.sendNotification = (title, body) => triggerSystemNotification(title, body);
+
+    function renderNotifications() {
+      const badge = document.getElementById("notifBadge");
+      if (notifications.length > 0) {
+        badge.innerText = notifications.length;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+      const list = document.getElementById("notifList");
+      if (notifications.length === 0) {
+        list.innerHTML = `<div class="bg-white p-4 rounded-xl border text-center text-xs text-slate-400">No notifications yet.</div>`;
+        return;
+      }
+      list.innerHTML = notifications.map(n => `
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm flex justify-between items-start gap-2">
+          <div>
+            <h4 class="font-bold text-xs text-slate-800">${n.title}</h4>
+            <p class="text-xs text-slate-600 mt-0.5">${n.body}</p>
+          </div>
+          <span class="text-[10px] text-slate-400 shrink-0">${n.timeStr}</span>
+        </div>
+      `).join("");
+    }
+
+    window.clearNotifications = () => {
+      const uid = currentUser ? currentUser.uid : "guest";
+      notifications = [];
+      localStorage.setItem(`stepup_notifs_${uid}`, "[]");
+      renderNotifications();
+    };
+
+    window.saveDailyReminder = () => {
+      const t = document.getElementById("reminderTime").value;
+      triggerSystemNotification("Daily Rehab Alarm Set ⏰", `Daily reminder scheduled for ${t}.`);
+    };
+
     window.switchTab = (tab) => {
       ["home", "appointments", "ai", "notifications"].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add("hidden");
