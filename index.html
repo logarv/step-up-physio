@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d9488" />
+  <title>StepUp Physio - Rehab & Booking App</title>
+  <link rel="manifest" href="/manifest.json" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
+    .hide-scroll::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 pb-20 select-none">
+
+  <!-- TOP APP BAR -->
+  <header class="bg-teal-600 text-white sticky top-0 z-40 shadow-md px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-heart-pulse text-2xl"></i>
+      <div>
+        <h1 class="font-bold text-lg leading-tight">StepUp Physio</h1>
+        <p class="text-[11px] text-teal-100">Rehabilitation & Care Center</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Install App Button (PWA) -->
+      <button id="installBtn" class="hidden bg-white text-teal-700 text-xs font-bold px-2.5 py-1.5 rounded-full shadow">
+        <i class="fa-solid fa-download mr-1"></i>Install
+      </button>
+      <!-- Notification Bell -->
+      <button onclick="switchTab('notifications')" class="relative p-2 rounded-full hover:bg-teal-700">
+        <i class="fa-solid fa-bell text-lg"></i>
+        <span id="notifBadge" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+      </button>
+      <!-- User Profile / Logout -->
+      <button id="logoutBtn" onclick="handleLogout()" class="hidden text-xs bg-teal-800 px-2.5 py-1.5 rounded-lg">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- AUTHENTICATION MODAL (SIGN IN / SIGN UP) -->
+  <div id="authScreen" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+      <div class="text-center mb-5">
+        <div class="w-14 h-14 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl">
+          <i class="fa-solid fa-user-doctor"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800">Welcome to StepUp Physio</h2>
+        <p class="text-xs text-slate-500">Sign in to sync exercises, appointments & alerts</p>
+      </div>
+
+      <div class="space-y-3">
+        <input id="authName" type="text" placeholder="Full Name (for Sign Up)" class="w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
+        <input id="authEmail" type="email" placeholder="Email Address" class="w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
+        <input id="authPass" type="password" placeholder="Password (min 6 chars)" class="w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
+        
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="handleEmailAuth('login')" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 rounded-xl text-sm">Login</button>
+          <button onclick="handleEmailAuth('signup')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm">Sign Up</button>
+        </div>
+
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span class="flex-shrink mx-3 text-slate-400 text-xs">OR</span>
+          <div class="flex-grow border-t border-slate-200"></div>
+        </div>
+
+        <button onclick="handleGoogleLogin()" class="w-full border border-slate-300 hover:bg-slate-50 font-medium py-2.5 rounded-xl text-sm flex items-center justify-center gap-2">
+          <i class="fa-brands fa-google text-red-500"></i> Continue with Google
+        </button>
+        <button onclick="enableDemoMode()" class="w-full text-teal-600 text-xs font-semibold py-1.5 underline">
+          Use Instant Local Demo Mode (No Firebase Key Needed)
+        </button>
+      </div>
+      <p id="authError" class="text-red-500 text-xs text-center mt-3 hidden"></p>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-3xl mx-auto p-4 space-y-5">
+
+    <!-- NOTIFICATION PERMISSION BANNER -->
+    <div id="pushBanner" class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <i class="fa-solid fa-bell-concierge text-amber-600 text-lg"></i>
+        <p class="text-xs text-amber-900">Enable device notifications for appointment & daily posture alerts.</p>
+      </div>
+      <button onclick="requestPushPermission()" class="bg-amber-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0">Allow</button>
+    </div>
+
+    <!-- TAB 1: HOME & EXERCISES -->
+    <section id="tab-home" class="space-y-5">
+      <!-- Welcome & Quick Stats -->
+      <div class="bg-gradient-to-r from-teal-600 to-emerald-600 rounded-2xl p-4 text-white shadow-md">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-xs text-teal-100">Assalam-o-Alaikum,</p>
+            <h2 id="userGreeting" class="text-lg font-bold">Patient</h2>
+          </div>
+          <div class="text-right">
+            <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full">Realtime Sync Active <i class="fa-solid fa-bolt text-yellow-300 ml-1"></i></span>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center bg-black/15 rounded-xl p-2.5">
+          <div>
+            <p id="statCompleted" class="text-lg font-bold">0</p>
+            <p class="text-[11px] text-teal-100">Sessions Done</p>
+          </div>
+          <div>
+            <p id="statPain" class="text-lg font-bold">--</p>
+            <p class="text-[11px] text-teal-100">Last Pain Level</p>
+          </div>
+          <div>
+            <p id="statAppts" class="text-lg font-bold">0</p>
+            <p class="text-[11px] text-teal-100">Active Bookings</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Filter -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-bold text-sm text-slate-700">Specialized Rehab Categories</h3>
+          <button onclick="toggleAddExerciseModal()" class="text-xs text-teal-600 font-semibold">+ Add Custom Routine</button>
+        </div>
+        <div id="categoryPills" class="flex gap-2 overflow-x-auto hide-scroll pb-1">
+          <button onclick="filterCategory('All')" class="cat-btn bg-teal-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">All</button>
+          <button onclick="filterCategory('Orthopedics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Orthopedics</button>
+          <button onclick="filterCategory('Neurology')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Neurology</button>
+          <button onclick="filterCategory('Pediatrics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Pediatrics</button>
+          <button onclick="filterCategory('Geriatrics')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Geriatrics</button>
+          <button onclick="filterCategory('Posture Care')" class="cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0">Posture Care</button>
+        </div>
+      </div>
+
+      <!-- Exercise Cards List -->
+      <div id="exerciseList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+      <!-- Pain Level & Progress Logger -->
+      <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
+        <h3 class="font-bold text-sm"><i class="fa-solid fa-sliders text-teal-600 mr-1.5"></i>Log Today's Pain & Recovery</h3>
+        <div class="flex items-center gap-3">
+          <input id="painSlider" type="range" min="1" max="10" value="3" oninput="document.getElementById('painVal').innerText = this.value" class="w-full accent-teal-600" />
+          <span id="painVal" class="font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-lg text-sm">3</span>
+        </div>
+        <button onclick="savePainLog()" class="w-full bg-slate-800 text-white text-xs font-semibold py-2.5 rounded-xl">Save Pain Score & Update Cloud</button>
+      </div>
+    </section>
+
+    <!-- TAB 2: APPOINTMENTS (BOOK, RESCHEDULE, CANCEL) -->
+    <section id="tab-appointments" class="hidden space-y-5">
+      <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
+        <h3 class="font-bold text-base text-slate-800"><i class="fa-regular fa-calendar-check text-teal-600 mr-1.5"></i>Book Physiotherapy Session</h3>
+        <p class="text-xs text-slate-500">Book an in-clinic or online video rehabilitation consultation.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Select Specialist / Department</label>
+            <select id="apptDoctor" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50">
+              <option value="Dr. Mubeen Riaz (DPT, Consultant Physiotherapist)">Dr. Mubeen Riaz (DPT, Consultant Physiotherapist)</option>
+</select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Session Type</label>
+            <select id="apptType" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50">
+              <option value="Clinic Visit (StepUp Center)">Clinic Visit (StepUp Center)</option>
+              <option value="Video Consultation">Online Video Consultation</option>
+              <option value="Home Physio Visit">Home Physio Visit</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Appointment Date</label>
+            <input id="apptDate" type="date" class="w-full mt-1 px-3 py-2 border rounded-xl text-sm bg-slate-50" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Time Slot</label>
+            <select id="apptTime" class="w-full mt-1 px-3 py-2.5 border rounded-xl text-sm bg-slate-50">
+              <option value="10:00 AM">10:00 AM</option>
+              <option value="12:00 PM">12:00 PM</option>
+              <option value="03:00 PM">03:00 PM</option>
+              <option value="05:00 PM">05:00 PM</option>
+              <option value="07:00 PM">07:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <input id="apptNotes" type="text" placeholder="Describe pain area or symptoms (e.g., Lower back stiffness)" class="w-full px-3 py-2.5 border rounded-xl text-sm bg-slate-50" />
+        <button onclick="bookAppointment()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl text-sm shadow">
+          <i class="fa-solid fa-calendar-plus mr-1"></i> Confirm Appointment Booking
+        </button>
+      </div>
+
+      <!-- Active & Cancelled Appointments List -->
+      <div class="space-y-2.5">
+        <h3 class="font-bold text-sm text-slate-700">Your Scheduled Appointments (Real-time Synced)</h3>
+        <div id="appointmentsList" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: AI PHYSIO ASSISTANT (GEMINI SERVER-SIDE) -->
+    <section id="tab-ai" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-2xl border shadow-sm">
+        <div class="flex items-center gap-2.5 mb-2">
+          <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm">StepUp AI Physio Guide</h3>
+            <p class="text-[11px] text-slate-500">Ask in Urdu or English about posture, stretches, or rehab routines</p>
+          </div>
+        </div>
+        <div id="chatBox" class="h-80 overflow-y-auto bg-slate-50 rounded-xl p-3 space-y-2.5 text-xs border">
+          <div class="bg-teal-600 text-white p-3 rounded-xl max-w-[85%]">
+            Assalam-o-Alaikum! Main StepUp Physio AI Assistant hoon. Aap ko kis body part (gardan, kamar, ghutne, posture) ki exercise ya rehab guidance chahiye?
+          </div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <input id="aiInput" type="text" placeholder="Type symptoms (e.g. Neck pain from laptop use)..." class="flex-1 px-3.5 py-2.5 border rounded-xl text-sm focus:outline-teal-600" />
+          <button onclick="askGemini()" class="bg-teal-600 text-white px-4 rounded-xl font-semibold text-sm">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: ALL NOTIFICATIONS & REMINDERS -->
+    <section id="tab-notifications" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-sm"><i class="fa-solid fa-clock text-teal-600 mr-1.5"></i>Set Daily Exercise & Posture Reminder</h3>
+          <button onclick="sendNotification('Test Alert', 'StepUp Physio notifications are working properly on your device!')" class="text-xs bg-teal-50 text-teal-700 px-2.5 py-1 rounded-lg font-semibold">Test Alert</button>
+        </div>
+        <div class="flex gap-2">
+          <input id="reminderTime" type="time" value="09:00" class="border px-3 py-2 rounded-xl text-sm flex-1" />
+          <button onclick="saveDailyReminder()" class="bg-slate-800 text-white text-xs font-semibold px-4 rounded-xl">Set Daily Alarm</button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-sm text-slate-700">Notification History (Bookings, Cancellations & Alerts)</h3>
+          <button onclick="clearNotifications()" class="text-xs text-red-500 font-medium">Clear All</button>
+        </div>
+        <div id="notifList" class="space-y-2"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- INTERACTIVE EXERCISE TIMER MODAL -->
+  <div id="timerModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 text-center space-y-4">
+      <span id="modalCat" class="text-[11px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 px-3 py-1 rounded-full">Category</span>
+      <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Exercise Name</h3>
+      <p id="modalSteps" class="text-xs text-slate-600 leading-relaxed"></p>
+      <div class="py-4 bg-slate-100 rounded-2xl">
+        <p id="timerDisplay" class="text-4xl font-extrabold text-teal-600 font-mono">00:45</p>
+        <p class="text-[11px] text-slate-500 mt-1">Hold / Perform smoothly & breathe normally</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="startStopTimer()" id="timerToggleBtn" class="flex-1 bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Start Timer</button>
+        <button onclick="completeExerciseSession()" class="flex-1 bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-sm">Mark Done</button>
+      </div>
+      <button onclick="closeTimerModal()" class="text-xs text-slate-400 underline">Close</button>
+    </div>
+  </div>
+
+  <!-- DYNAMIC ADD EXERCISE MODAL (REALTIME CLOUD UPDATE) -->
+  <div id="addExModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-3">
+      <h3 class="font-bold text-base">Add New Rehab Exercise (Auto-Syncs Everywhere)</h3>
+      <input id="newExTitle" type="text" placeholder="Exercise Name (e.g. Chin Tucks)" class="w-full px-3 py-2 border rounded-xl text-sm" />
+      <select id="newExCat" class="w-full px-3 py-2 border rounded-xl text-sm">
+        <option value="Orthopedics">Orthopedics</option>
+        <option value="Neurology">Neurology</option>
+        <option value="Pediatrics">Pediatrics</option>
+        <option value="Geriatrics">Geriatrics</option>
+        <option value="Posture Care">Posture Care</option>
+      </select>
+      <input id="newExDuration" type="number" placeholder="Duration in seconds (e.g. 45)" value="45" class="w-full px-3 py-2 border rounded-xl text-sm" />
+      <textarea id="newExDesc" rows="3" placeholder="Step-by-step instructions..." class="w-full px-3 py-2 border rounded-xl text-sm"></textarea>
+      <div class="flex gap-2">
+        <button onclick="addNewExercise()" class="flex-1 bg-teal-600 text-white font-semibold py-2.5 rounded-xl text-sm">Save & Sync</button>
+        <button onclick="toggleAddExerciseModal()" class="flex-1 bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-sm">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION BAR (PLAY STORE APP FEEL) -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 flex justify-around py-2 z-40 max-w-3xl mx-auto">
+    <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-teal-600 text-xs font-semibold">
+      <i class="fa-solid fa-dumbbell text-lg mb-0.5"></i><span>Exercises</span>
+    </button>
+    <button onclick="switchTab('appointments')" id="nav-appointments" class="flex flex-col items-center text-slate-400 text-xs font-semibold">
+      <i class="fa-solid fa-calendar-check text-lg mb-0.5"></i><span>Bookings</span>
+    </button>
+    <button onclick="switchTab('ai')" id="nav-ai" class="flex flex-col items-center text-slate-400 text-xs font-semibold">
+      <i class="fa-solid fa-wand-magic-sparkles text-lg mb-0.5"></i><span>AI Physio</span>
+    </button>
+    <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center text-slate-400 text-xs font-semibold">
+      <i class="fa-solid fa-bell text-lg mb-0.5"></i><span>Alerts</span>
+    </button>
+  </nav>
+
+  <!-- FIREBASE & APP LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, where, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // =========================================================================
+    // 1. APNI FIREBASE CONFIG YAHAN PASTE KAREIN (Firebase Console -> Project Settings)
+    // =========================================================================
+    const firebaseConfig = {
+      apiKey: "REPLACE_WITH_YOUR_FIREBASE_API_KEY",
+      authDomain: "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
+      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+      storageBucket: "REPLACE_WITH_YOUR_PROJECT.appspot.com",
+      messagingSenderId: "REPLACE_WITH_SENDER_ID",
+      appId: "REPLACE_WITH_APP_ID"
+    };
+
+    let app, auth, db;
+    let isDemoMode = firebaseConfig.apiKey.includes("REPLACE");
+    let currentUser = null;
+
+    // Default Built-in Rehab Exercises (covering all metadata.json categories)
+    const defaultExercises = [
+      { id: "ex1", title: "Cervical Chin Tucks & Wall Angels", category: "Posture Care", duration: 45, desc: "Stand with back flat against the wall. Gently draw chin back and slide arms up and down slowly for upper back & neck alignment." },
+      { id: "ex2", title: "Lumbar Cobra Prone Extension", category: "Orthopedics", duration: 40, desc: "Lie on your stomach, place hands under shoulders, and gently lift your chest while keeping hips on the mat to relieve lower back disc pressure." },
+      { id: "ex3", title: "Single-Leg Tandem Balance & Gaze", category: "Neurology", duration: 60, desc: "Stand near a support rail, place one foot directly in front of the other, and hold steady for neuro-muscular balance retraining." },
+      { id: "ex4", title: "Seated Knee Extension & Ankle Pumps", category: "Geriatrics", duration: 50, desc: "Sit upright on a sturdy chair, slowly straighten one knee completely, hold 5 seconds, and perform gentle ankle pumps for joint mobility." },
+      { id: "ex5", title: "Pediatric Core Bear Crawl & Reach", category: "Pediatrics", duration: 45, desc: "Fun guided quadruped coordination exercise for children to build shoulder stability, trunk strength, and motor control." }
+    ];
+
+    let allExercises = [...defaultExercises];
+    let appointments = [];
+    let notifications = [];
+    let selectedCategory = "All";
+
+    // Initialize Firebase if configured
+    if (!isDemoMode) {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = { uid: user.uid, name: user.displayName || user.email.split('@')[0], email: user.email };
+          onUserLoggedIn();
+          setupRealtimeListeners();
+        } else {
+          document.getElementById("authScreen").classList.remove("hidden");
+        }
+      });
+    } else {
+      // Load cross-tab Realtime LocalStorage listener for Instant Demo Mode
+      window.addEventListener("storage", () => loadLocalDemoData());
+    }
+
+    // =========================================================================
+    // 2. REALTIME LISTENERS (AUTO-UPDATES EVERYWHERE WITHOUT REFRESH)
+    // =========================================================================
+    function setupRealtimeListeners() {
+      if (isDemoMode) return;
+
+      // A. Realtime Exercises Collection (Admin ya doctor kuch bhi change kare to har user ke paas update ho)
+      onSnapshot(collection(db, "exercises"), (snapshot) => {
+        const cloudEx = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        allExercises = [...defaultExercises, ...cloudEx];
+        renderExercises();
+      });
+
+      // B. Realtime User Appointments (Booking & Cancellation live sync)
+      const qAppt = query(collection(db, "appointments"), where("userId", "==", currentUser.uid));
+      onSnapshot(qAppt, (snapshot) => {
+        appointments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderAppointments();
+        updateStatsUI();
+      });
+
+      // C. Realtime User Notifications
+      const qNotif = query(collection(db, "notifications"), where("userId", "==", currentUser.uid));
+      onSnapshot(qNotif, (snapshot) => {
+        notifications = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.timestamp - a.timestamp);
+        renderNotifications();
+      });
+
+      // D. Realtime User Stats (Sessions & Pain Score)
+      onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("statCompleted").innerText = data.completedSessions || 0;
+          document.getElementById("statPain").innerText = data.lastPain ? `${data.lastPain}/10` : "--";
+        }
+      });
+    }
+
+    // =========================================================================
+    // 3. AUTHENTICATION FUNCTIONS
+    // =========================================================================
+    window.handleEmailAuth = async (mode) => {
+      const name = document.getElementById("authName").value.trim();
+      const email = document.getElementById("authEmail").value.trim();
+      const pass = document.getElementById("authPass").value.trim();
+      const errEl = document.getElementById("authError");
+      errEl.classList.add("hidden");
+
+      if (!email || !pass) {
+        errEl.innerText = "Please enter both email and password.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      if (isDemoMode) {
+        enableDemoMode(name || email.split("@")[0]);
+        return;
+      }
+
+      try {
+        if (mode === "signup") {
+          const cred = await createUserWithEmailAndPassword(auth, email, pass);
+          if (name) await updateProfile(cred.user, { displayName: name });
+          await setDoc(doc(db, "users", cred.user.uid), { name: name || email, email, completedSessions: 0, lastPain: null });
+          await triggerSystemNotification("Welcome to StepUp Physio!", "Your rehabilitation account is active and synced across devices.");
+        } else {
+          await signInWithEmailAndPassword(auth, email, pass);
+        }
+      } catch (e) {
+        errEl.innerText = e.message;
+        errEl.classList.remove("hidden");
+      }
+    };
+
+    window.handleGoogleLogin = async () => {
+      if (isDemoMode) return enableDemoMode("StepUp Patient");
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    window.enableDemoMode = (customName = "Muhammad Shahbaz") => {
+      isDemoMode = true;
+      currentUser = { uid: "demo_user", name: customName, email: "patient@stepupphysio.com" };
+      onUserLoggedIn();
+      loadLocalDemoData();
+      triggerSystemNotification("Realtime Mode Ready", "Any exercise or appointment change will auto-update immediately.");
+    };
+
+    window.handleLogout = async () => {
+      if (!isDemoMode && auth) await signOut(auth);
+      location.reload();
+    };
+
+    function onUserLoggedIn() {
+      document.getElementById("authScreen").classList.add("hidden");
+      document.getElementById("logoutBtn").classList.remove("hidden");
+      document.getElementById("userGreeting").innerText = currentUser.name;
+      renderExercises();
+    }
+
+    function loadLocalDemoData() {
+      const savedEx = JSON.parse(localStorage.getItem("stepup_ex") || "[]");
+      allExercises = [...defaultExercises, ...savedEx];
+      appointments = JSON.parse(localStorage.getItem("stepup_appts") || "[]");
+      notifications = JSON.parse(localStorage.getItem("stepup_notifs") || "[]");
+      const stats = JSON.parse(localStorage.getItem("stepup_stats") || '{"completed":0,"pain":"--"}');
+      document.getElementById("statCompleted").innerText = stats.completed;
+      document.getElementById("statPain").innerText = stats.pain !== "--" ? `${stats.pain}/10` : "--";
+      renderExercises();
+      renderAppointments();
+      renderNotifications();
+      updateStatsUI();
+    }
+
+    // =========================================================================
+    // 4. APPOINTMENT BOOKING & CANCELLATION WITH INSTANT NOTIFICATIONS
+    // =========================================================================
+    window.bookAppointment = async () => {
+      const doctor = document.getElementById("apptDoctor").value;
+      const type = document.getElementById("apptType").value;
+      const date = document.getElementById("apptDate").value;
+      const time = document.getElementById("apptTime").value;
+      const notes = document.getElementById("apptNotes").value.trim();
+
+      if (!date) return alert("Please select an appointment date.");
+
+      const newAppt = {
+        userId: currentUser.uid,
+        patientName: currentUser.name,
+        doctor,
+        type,
+        date,
+        time,
+        notes: notes || "General physiotherapy consultation",
+        status: "Confirmed",
+        createdAt: Date.now()
+      };
+
+      if (!isDemoMode) {
+        await addDoc(collection(db, "appointments"), newAppt);
+      } else {
+        newAppt.id = "appt_" + Date.now();
+        appointments.unshift(newAppt);
+        localStorage.setItem("stepup_appts", JSON.stringify(appointments));
+        renderAppointments();
+        updateStatsUI();
+      }
+
+      document.getElementById("apptNotes").value = "";
+      await triggerSystemNotification(
+        "Appointment Confirmed ✅",
+        `Booked with ${doctor} on ${date} at ${time} (${type}).`
+      );
+    };
+
+    window.cancelAppointment = async (apptId) => {
+      const target = appointments.find(a => a.id === apptId);
+      if (!target) return;
+
+      if (!isDemoMode) {
+        await updateDoc(doc(db, "appointments", apptId), { status: "Cancelled" });
+      } else {
+        target.status = "Cancelled";
+        localStorage.setItem("stepup_appts", JSON.stringify(appointments));
+        renderAppointments();
+        updateStatsUI();
+      }
+
+      await triggerSystemNotification(
+        "Appointment Cancelled ❌",
+        `Your booking with ${target.doctor} on ${target.date} at ${target.time} has been cancelled.`
+      );
+    };
+
+    function renderAppointments() {
+      const container = document.getElementById("appointmentsList");
+      if (appointments.length === 0) {
+        container.innerHTML = `<div class="bg-white p-4 rounded-xl border text-center text-xs text-slate-400">No appointments booked yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = appointments.map(a => {
+        const isCancelled = a.status === "Cancelled";
+        return `
+          <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row justify-between gap-3 ${isCancelled ? 'opacity-60' : ''}">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${isCancelled ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.status}</span>
+                <span class="text-xs font-semibold text-teal-700">${a.type}</span>
+              </div>
+              <h4 class="font-bold text-sm text-slate-800">${a.doctor}</h4>
+              <p class="text-xs text-slate-600"><i class="fa-regular fa-clock mr-1"></i>${a.date} at ${a.time}</p>
+              <p class="text-[11px] text-slate-500">Note: ${a.notes}</p>
+            </div>
+            ${!isCancelled ? `
+              <div class="flex items-center">
+                <button onclick="cancelAppointment('${a.id}')" class="w-full sm:w-auto bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs px-3.5 py-2 rounded-xl border border-red-200">
+                  <i class="fa-solid fa-ban mr-1"></i> Cancel Booking
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // 5. ALL TYPES OF NOTIFICATIONS (PUSH + IN-APP BELL + SOUND + REMINDERS)
+    // =========================================================================
+    window.requestPushPermission = async () => {
+      if (!("Notification" in window)) return alert("Browser does not support notifications.");
+      const perm = await Notification.requestPermission();
+      if (perm === "granted") {
+        document.getElementById("pushBanner").classList.add("hidden");
+        triggerSystemNotification("Notifications Active 🔔", "You will now receive Play Store style booking & exercise alerts.");
+      }
+    };
+
+    if ("Notification" in window && Notification.permission === "granted") {
+      document.getElementById("pushBanner").classList.add("hidden");
+    }
+
+    async function triggerSystemNotification(title, body) {
+      const notifObj = {
+        userId: currentUser ? currentUser.uid : "demo",
+        title,
+        body,
+        timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: Date.now()
+      };
+
+      // Save to Firestore or LocalStorage
+      if (!isDemoMode && currentUser) {
+        await addDoc(collection(db, "notifications"), notifObj);
+      } else {
+        notifications.unshift(notifObj);
+        localStorage.setItem("stepup_notifs", JSON.stringify(notifications));
+        renderNotifications();
+      }
+
+      // Trigger Native Mobile/Desktop Push Notification via Service Worker
+      if ("Notification" in window && Notification.permission === "granted") {
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          const reg = await navigator.serviceWorker.ready;
+          reg.showNotification(title, {
+            body,
+            icon: "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
+            vibrate: [200, 100, 200]
+          });
+        } else {
+          new Notification(title, { body });
+        }
+      }
+    }
+
+    window.sendNotification = (title, body) => triggerSystemNotification(title, body);
+
+    function renderNotifications() {
+      const badge = document.getElementById("notifBadge");
+      if (notifications.length > 0) {
+        badge.innerText = notifications.length;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+
+      const list = document.getElementById("notifList");
+      if (notifications.length === 0) {
+        list.innerHTML = `<div class="bg-white p-4 rounded-xl border text-center text-xs text-slate-400">No notifications yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = notifications.map(n => `
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm flex justify-between items-start gap-2">
+          <div>
+            <h4 class="font-bold text-xs text-slate-800">${n.title}</h4>
+            <p class="text-xs text-slate-600 mt-0.5">${n.body}</p>
+          </div>
+          <span class="text-[10px] text-slate-400 shrink-0">${n.timeStr}</span>
+        </div>
+      `).join("");
+    }
+
+    window.clearNotifications = () => {
+      notifications = [];
+      localStorage.setItem("stepup_notifs", "[]");
+      renderNotifications();
+    };
+
+    window.saveDailyReminder = () => {
+      const t = document.getElementById("reminderTime").value;
+      localStorage.setItem("stepup_reminder", t);
+      triggerSystemNotification("Daily Rehab Alarm Set ⏰", `We will remind you daily at ${t} for your StepUp Physio posture & exercise routine.`);
+    };
+
+    // =========================================================================
+    // 6. EXERCISES, TIMER & REAL-TIME ADDING
+    // =========================================================================
+    window.filterCategory = (cat) => {
+      selectedCategory = cat;
+      document.querySelectorAll(".cat-btn").forEach(btn => {
+        if (btn.innerText === cat) {
+          btn.className = "cat-btn bg-teal-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0";
+        } else {
+          btn.className = "cat-btn bg-white border text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shrink-0";
+        }
+      });
+      renderExercises();
+    };
+
+    function renderExercises() {
+      const container = document.getElementById("exerciseList");
+      const filtered = selectedCategory === "All" ? allExercises : allExercises.filter(e => e.category === selectedCategory);
+
+      container.innerHTML = filtered.map(ex => `
+        <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col justify-between gap-3">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-[10px] font-bold uppercase bg-teal-50 text-teal-700 px-2.5 py-0.5 rounded-full">${ex.category}</span>
+              <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${ex.duration}s</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800">${ex.title}</h4>
+            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${ex.desc}</p>
+          </div>
+          <button onclick="openTimerModal('${ex.title.replace(/'/g, "\\'")}', '${ex.category}', ${ex.duration}, '${ex.desc.replace(/'/g, "\\'")}')" class="w-full bg-teal-50 hover:bg-teal-600 hover:text-white text-teal-700 font-semibold text-xs py-2.5 rounded-xl transition">
+            <i class="fa-solid fa-play mr-1"></i> Start Guided Routine
+          </button>
+        </div>
+      `).join("");
+    }
+
+    window.toggleAddExerciseModal = () => {
+      document.getElementById("addExModal").classList.toggle("hidden");
+    };
+
+    window.addNewExercise = async () => {
+      const title = document.getElementById("newExTitle").value.trim();
+      const category = document.getElementById("newExCat").value;
+      const duration = parseInt(document.getElementById("newExDuration").value) || 45;
+      const desc = document.getElementById("newExDesc").value.trim();
+
+      if (!title || !desc) return alert("Please fill exercise title and instructions.");
+
+      const newEx = { title, category, duration, desc };
+      if (!isDemoMode) {
+        await addDoc(collection(db, "exercises"), newEx);
+      } else {
+        const saved = JSON.parse(localStorage.getItem("stepup_ex") || "[]");
+        saved.push({ id: "custom_" + Date.now(), ...newEx });
+        localStorage.setItem("stepup_ex", JSON.stringify(saved));
+        loadLocalDemoData();
+      }
+
+      toggleAddExerciseModal();
+      triggerSystemNotification("New Exercise Synced 🔄", `${title} added to ${category} and updated across all devices.`);
+    };
+
+    // Exercise Timer Logic
+    let timerInterval = null;
+    let remainingSeconds = 45;
+
+    window.openTimerModal = (title, cat, duration, steps) => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      remainingSeconds = duration;
+      document.getElementById("modalTitle").innerText = title;
+      document.getElementById("modalCat").innerText = cat;
+      document.getElementById("modalSteps").innerText = steps;
+      updateTimerText();
+      document.getElementById("timerToggleBtn").innerText = "Start Timer";
+      document.getElementById("timerModal").classList.remove("hidden");
+    };
+
+    window.closeTimerModal = () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById("timerModal").classList.add("hidden");
+    };
+
+    window.startStopTimer = () => {
+      const btn = document.getElementById("timerToggleBtn");
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.innerText = "Resume";
+      } else {
+        btn.innerText = "Pause";
+        timerInterval = setInterval(() => {
+          if (remainingSeconds > 0) {
+            remainingSeconds--;
+            updateTimerText();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            btn.innerText = "Completed!";
+            triggerSystemNotification("Set Complete! 🎉", "Great job finishing your exercise set.");
+          }
+        }, 1000);
+      }
+    };
+
+    function updateTimerText() {
+      const mins = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
+      const secs = String(remainingSeconds % 60).padStart(2, "0");
+      document.getElementById("timerDisplay").innerText = `${mins}:${secs}`;
+    }
+
+    window.completeExerciseSession = async () => {
+      closeTimerModal();
+      const currentCount = parseInt(document.getElementById("statCompleted").innerText) || 0;
+      const nextCount = currentCount + 1;
+
+      if (!isDemoMode && currentUser) {
+        await setDoc(doc(db, "users", currentUser.uid), { completedSessions: nextCount }, { merge: true });
+      } else {
+        const stats = JSON.parse(localStorage.getItem("stepup_stats") || '{"completed":0,"pain":"--"}');
+        stats.completed = nextCount;
+        localStorage.setItem("stepup_stats", JSON.stringify(stats));
+        document.getElementById("statCompleted").innerText = nextCount;
+      }
+      triggerSystemNotification("Workout Logged 💪", `You have completed ${nextCount} rehab sessions!`);
+    };
+
+    window.savePainLog = async () => {
+      const val = document.getElementById("painSlider").value;
+      if (!isDemoMode && currentUser) {
+        await setDoc(doc(db, "users", currentUser.uid), { lastPain: val }, { merge: true });
+      } else {
+        const stats = JSON.parse(localStorage.getItem("stepup_stats") || '{"completed":0,"pain":"--"}');
+        stats.pain = val;
+        localStorage.setItem("stepup_stats", JSON.stringify(stats));
+        document.getElementById("statPain").innerText = `${val}/10`;
+      }
+      triggerSystemNotification("Pain Level Logged 📊", `Your current pain level (${val}/10) has been recorded in your recovery chart.`);
+    };
+
+    function updateStatsUI() {
+      const activeCount = appointments.filter(a => a.status === "Confirmed").length;
+      document.getElementById("statAppts").innerText = activeCount;
+    }
+
+    // =========================================================================
+    // 7. GEMINI AI ASSISTANT (CALLS VERCEL SERVERLESS /api/gemini)
+    // =========================================================================
+    window.askGemini = async () => {
+      const input = document.getElementById("aiInput");
+      const question = input.value.trim();
+      if (!question) return;
+
+      const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML += `<div class="bg-slate-800 text-white p-3 rounded-xl max-w-[85%] ml-auto">${question}</div>`;
+      input.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch("/api/gemini", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: question })
+        });
+        const data = await res.json();
+        chatBox.innerHTML += `<div class="bg-teal-600 text-white p-3 rounded-xl max-w-[85%]">${data.reply || "Please consult our StepUp Physio specialist for severe pain."}</div>`;
+      } catch (err) {
+        chatBox.innerHTML += `<div class="bg-teal-600 text-white p-3 rounded-xl max-w-[85%]">Tip: Keep your spine neutral, perform gentle Chin Tucks & Cobra stretches for 30s, and book an appointment in the Bookings tab if pain persists.</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    // =========================================================================
+    // 8. TAB NAVIGATION & PWA INSTALL PROMPT
+    // =========================================================================
+    window.switchTab = (tab) => {
+      ["home", "appointments", "ai", "notifications"].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add("hidden");
+        document.getElementById(`nav-${t}`).className = "flex flex-col items-center text-slate-400 text-xs font-semibold";
+      });
+      document.getElementById(`tab-${tab}`).classList.remove("hidden");
+      document.getElementById(`nav-${tab}`).className = "flex flex-col items-center text-teal-600 text-xs font-semibold";
+    };
+
+    let deferredPrompt;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById("installBtn");
+      btn.classList.remove("hidden");
+      btn.onclick = async () => {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        btn.classList.add("hidden");
+      };
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+  </script>
+</body>
+</html>
